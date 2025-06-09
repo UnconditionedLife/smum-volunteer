@@ -4,7 +4,7 @@ import React from 'react';
 export default function SmumLogo(props) {
     const { width, height, display } = props
 
-    const opacity = (display === "solid") ? "1.0" : "0.2"
+    const opacity = (display === "solid") ? "1.0" : "0.6"
     const padding = (display === "solid") ? 0 : 5
 
     return (

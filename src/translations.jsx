@@ -1,0 +1,36 @@
+const translations = {
+    en: {
+      welcome: "Welcome to the Volunteer Portal",
+      tagline: "Making a difference, one volunteer at a time.",
+      volunteerUpper: "VOLUNTEER",
+      name: "Name",
+      telephone: "Telephone",
+      email: "Email",
+      activity: "Activity",
+      activityTimeUpper: "ACTIVITY & TIME",
+      checkinTime: "Select time to check in",
+      checkoutTime: "Select time to check out",
+      signIn: "Sign In",
+      signOut: "Sign Out",
+      checkedIn: "You are currently checked in.",
+      checkedOut: "You are currently checked out.",
+    },
+    es: {
+      welcome: "Bienvenido al Portal de Voluntarios",
+      tagline: "Marcando la diferencia, un voluntario a la vez.",
+      volunteerUpper: "VOLUNTARIO",
+      name: "Nombre",
+      telephone: "Teléfono",
+      email: "Correo electrónico",
+      activity: "Actividad",
+      activityTimeUpper: "ACTIVIDAD Y HORA",
+      checkinTime: "Selecciona la hora de entrada",
+      checkoutTime: "Selecciona la hora de salida",
+      signIn: "Ingresar",
+      signOut: "Salir",
+      checkedIn: "Actualmente has ingresado.",
+      checkedOut: "Actualmente has salido.",
+    },
+  };
+  
+  export default translations;

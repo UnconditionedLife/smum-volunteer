@@ -1,8 +1,23 @@
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #fefaf5, #b9d8be);
+    margin: 0 auto;
+    padding: 0;
+  }
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
   text-align: center;
+}
+
+.app-container {
+    min-height: 100vh;
+    /* background: linear-gradient(to bottom, #fefaf5, #b9d8be); */
+    position: relative;
+    overflow: hidden;
 }
 
 .logo {
@@ -39,4 +54,77 @@
 
 .read-the-docs {
   color: #888;
+}
+
+.splash-screen {
+    position: fixed;
+    margin-top: 20px;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeOut 1s ease-in-out 1.8s forwards;
+  }
+  
+  .splash-logo {
+    width: 180px;
+    height: auto;
+    transition: all 0.8s ease;
+  }
+  
+  .header-logo {
+    width: 40px;
+    margin-top: 16px;
+    margin-left: calc(50% - 20px);
+    transition: all 0.4s ease;
+  }
+  
+.shrink-to-header {
+    position: fixed;
+    top: 16px;
+    left: calc(50% - 20px);
+    width: 40px;
+    transform: translateY(0);
+    transition: all 0.8s ease;
+}
+
+.splash-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(to bottom, #fefaf5, #b9d8be);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeOut 0.8s ease-in-out 1.8s forwards;
+    text-align: center;
+}
+  
+  .splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ministry-name {
+    font-size: 1rem;
+    color: #123c53;
+    margin-top: 8px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.9s ease 0.4s forwards;
+  }
+  
+@keyframes fadeOut {
+    to {
+      opacity: 0;
+      visibility: hidden;
+    }
+}
+
+@keyframes fadeIn {
+    to {
+      opacity: 1;
+    }
 }

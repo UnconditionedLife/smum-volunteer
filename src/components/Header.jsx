@@ -5,7 +5,7 @@ export function Header(){
     return (
         <>
             <Box mb="40px" mt='-10px' padding={0}>
-                <SmumLogo width="70px"/>
+                <SmumLogo className="header-logo"/>
                 <Typography variant="H1" fontSize="20px" align="center" gutterBottom><b>Santa Maria Urban Ministry</b></Typography>
             </Box>
             <Box mb="0px" padding={0}>
