@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDB tables for SMUM Volunteer Tracking App
+
+Resources:
+  SMUMVolunteersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SMUM_Volunteers
+      AttributeDefinitions:
+        - AttributeName: VolunteerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: VolunteerId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  SMUMProgramsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SMUM_Programs
+      AttributeDefinitions:
+        - AttributeName: ProgramId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ProgramId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  SMUMActivitiesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SMUM_Activities
+      AttributeDefinitions:
+        - AttributeName: ActivityId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ActivityId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+
+  SMUMShiftLogsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: SMUM_ShiftLogs
+      AttributeDefinitions:
+        - AttributeName: ShiftId
+          AttributeType: S
+        - AttributeName: VolunteerId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ShiftId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: VolunteerIdIndex
+          KeySchema:
+            - AttributeName: VolunteerId
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+      BillingMode: PAY_PER_REQUEST

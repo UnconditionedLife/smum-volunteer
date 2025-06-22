@@ -7,7 +7,7 @@ import SmumLogo from "./assets/SmumLogo.jsx";
 import './App.css'
 import theme from './theme.jsx';
 import { ThemeProvider } from '@mui/material';
-import { LanguageProvider } from './languageContext.jsx';
+import { LanguageProvider } from './utils/languageContext.jsx';
 
 
 function App() {

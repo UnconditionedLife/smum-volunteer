@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SmumLogo from "../assets/SmumLogo.jsx";
-import { useLang } from '../languageContext';
+import { useLang } from '../utils/languageContext';
 
 export default function SplashScreen({ onFinish }) {
     const { t } = useLang();

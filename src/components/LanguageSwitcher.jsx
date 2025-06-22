@@ -1,4 +1,4 @@
-import { useLang } from '../languageContext';
+import { useLang } from '../utils/languageContext';
 import { Box, Typography } from '@mui/material';
 
 export default function LanguageSwitcher() {
