@@ -153,7 +153,7 @@ export default function Home({ isShrunk }) {
                                 
                                 console.log( "Registration:", vResult )
                 
-                                logAction(hash, "Check-In", activityId, programId)
+                                logAction(hash, "check-in", activityId, programId)
                                     .then(cResult =>{
                                         console.log( "LogAction:", cResult )
                                     } )
@@ -166,17 +166,13 @@ export default function Home({ isShrunk }) {
                 }
             }
         )
-
-
-
-
     };
 
     const handleSignOut = async () => {
         setCookie(getTodayKey(), '', -1); // Remove check-in cookie
         setCheckedIn(false);
         setStatusMsg( t('checkedOut') );
-        const checkInResult = await logAction(volunteerId, "Check-In", activityId, programId)
+        const checkInResult = await logAction(volunteerId, "check-out", activityId, programId)
         // Name cookie is NOT cleared here
         // Optionally, save sign-out info somewhere
     };
