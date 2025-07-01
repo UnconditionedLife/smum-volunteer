@@ -16,6 +16,7 @@ const translations = {
       signOut: "Sign Out",
       checkedIn: "You are currently checked in.",
       checkedOut: "You are currently checked out.",
+      register: "Register",
     },
     es: {
       welcome: "Bienvenido al Portal de Voluntarios",
@@ -34,6 +35,7 @@ const translations = {
       signOut: "Salir",
       checkedIn: "Actualmente has ingresado.",
       checkedOut: "Actualmente has salido.",
+      register: "Registrar",
     },
   };
   
