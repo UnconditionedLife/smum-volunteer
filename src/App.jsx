@@ -36,7 +36,7 @@ function App() {
                     <BrowserRouter>
                         <Routes>
                             <Route path="/" element={<Home isShrunk={isShrunk} />} />
-                            {/* <Route path="/activity/:activityId" element={<Activity />} /> */}
+                            <Route path="/activity/:activityId" element={<Home isShrunk={isShrunk} />} />
                             <Route path="*" element={<NotFound />} />
                         </Routes>
                     </BrowserRouter>
