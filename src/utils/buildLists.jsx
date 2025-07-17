@@ -21,8 +21,6 @@ export function prepareActivitiesList(rawActivities, lang) {
             ...sorted
         ]
 
-        console.log("localized", localized)
-
     return localized;
 }
   
@@ -37,7 +35,7 @@ export function prepareProgramsList(rawPrograms, lang) {
         const localized = [
             {
                 ProgramId: "0",
-                ProgramName: lang === 'es' ? "- Seleccione Uno -" : "- Select One -"
+                ProgramName: lang === 'es' ? "Ninguno" : "None"
             },
             ...sorted
         ]
