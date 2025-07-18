@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import SmumLogo from '../assets/SmumLogo';
@@ -28,7 +28,7 @@ export default function Home({ isShrunk }) {
     const [volunteerId, setVolunteerId]= useState('');
 
     // Activity & Time
-    const [activityId, setActivity] = useState(0);
+    const [activityId, setActivity] = useState(initialActivityId);
     const [rawActivities, setRawActivities] = useState([]);
     const [activities, setActivities] = useState([])
 

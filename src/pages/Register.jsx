@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -28,7 +28,7 @@ const es_header = [
 ];
 const es_body = [
     "",
-    "Santa Maria se compromete a brindar un ambiente acogedor. Se espera que los voluntarios lo mantengan siendo amables y respetuosos con todos: clientes, personal, donantes y compañeros voluntarios.",
+    "Santa Maria se compromete a brindar un ambiente acogedor. Se espera que los voluntarios sean amables y respetuosos con todos: clientes, personal, donantes y compañeros voluntarios.",
     "No se permite el acoso, ya sea verbal, físico o visual. Esto incluye bromas, comentarios o acciones ofensivas basadas en rasgos personales. Reporte cualquier incidente a un gerente de inmediato.",
     "No se permite ropa relacionada con pandillas, ofensiva, reveladora o corta. Los pantalones cortos deben llegar al menos hasta la punta de los dedos. Se requiere calzado cerrado. Se les podría pedir a los voluntarios que se cambien o regresen en otro momento si no cumplen con el código de vestimenta.",
 ];
@@ -50,9 +50,10 @@ export  function Register(props) {
         // Program
         const [programId, setProgram] = useState('0');
         const [rawPrograms, setRawPrograms] = useState([]);
-        const [programs, setPrograms] = useState([])
+        // const [programs, setPrograms] = useState([])
 
         useEffect(() => {
+            console.log("Effect 1")
             getPrograms()
                 .then( programsList => {
                     setRawPrograms(programsList)
@@ -60,12 +61,22 @@ export  function Register(props) {
                 .catch(console.error);
         }, []);
 
-        useEffect(() => {
-            // Sort + localize programs when lang or data changes
-            if (!rawPrograms.length) return;
-            const cleanPrograms = prepareProgramsList(rawPrograms, lang)    
-            setPrograms(cleanPrograms);
-        }, [lang, rawPrograms]);
+        // useEffect(() => {
+        //     console.log("Effect 2")
+        //     // Sort + localize programs when lang or data changes
+        //     if (!rawPrograms.length) return;
+        //     const cleanPrograms = prepareProgramsList(rawPrograms, lang)    
+        //     setPrograms(cleanPrograms);
+        // }, [lang, rawPrograms]);
+
+        // Better: memoize the result instead of updating a state variable
+        // const programs = useMemo(() => {
+        //     console.log("Memo 2")
+        //     return prepareProgramsList(rawPrograms, lang);
+        // }, [lang, rawPrograms]);
+
+        // Even better: Just compute on the fly
+        const programs = prepareProgramsList(rawPrograms, lang);
 
         const handleRegister = async () => {            
             registerVolunteer(firstName, lastName, telephone, email, programId)
