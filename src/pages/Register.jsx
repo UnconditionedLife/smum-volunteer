@@ -1,41 +1,65 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
 import { useLang } from '../utils/languageContext';
 import { setCookie, getPrograms, registerVolunteer, setVolunteerAttrs } from '../utils/api';
 import { prepareProgramsList } from '../utils/buildLists';
 
-// XXX remove numbers and add remainder
 const en_header = [
     "",
-    "1 Treat everyone with dignity, compassion, and respect",
-    "2 This is a safe space for everyone",
-    "3 Dress Code",
+    "Treat everyone with dignity, compassion, and respect",
+    "This is a safe space for everyone",
+    "Dress Code",
+    "Volunteer parking is limited",
+    "Limit personal items and phone use",
+    "No smoking, drugs, or alcohol",
+    "No special access or treatment",
+    "Follow shift guidelines and track hours",
+    "Eating and drinking",
+    "Be respectful, flexible, and follow directions",
 ];
 const en_body = [
     "",
     "Santa Maria is committed to a welcoming environment. Volunteers are expected to uphold this by being kind and respectful to all—clients, staff, donors, and fellow volunteers.",
     "Harassment—verbal, physical, or visual—is not allowed. This includes offensive jokes, comments, or actions based on personal traits. Report any incidents to a manager right away.",
     "No gang-related, offensive, revealing, or short clothing. Shorts must be at least to your fingertips. Closed-toe shoes are required. Volunteers may be asked to change or return another time, if not following the dress code.",
+    "Use designated areas or street parking at your own risk. Parking spaces are not guaranteed.",
+    "Santa Maria is not responsible for lost or stolen items. Phones must be on silent; no texting, calls, or music during your shift. Urgent calls should be taken outside after notifying your coordinator.",
+    "Smoking is not allowed on-site, including the parking lot. Volunteers may not use, possess, or be under the influence of drugs or alcohol.",
+    "Do not reserve items or give preference to anyone. Volunteers may not use pantry or clothing services on the same day they serve there.",
+    "Arrive on time, stay your full shift, notify a manager if you will miss a planned shift or need to leave early. Clock in and out for each shift. Directors can sign off if needed.",
+    "Breaks may be taken anywhere, but eating and drinking should be limited to the kitchen. If you need to take a break, inform your manager.",
+    "Act responsibly, treat others with respect, and be open to changing tasks. Do not confront clients or volunteers—bring concerns to a coordinator, manager, or director. Volunteers may be released if guidelines aren’t followed.",
 ];
 const es_header = [
     "",
-    "1 Tratar a todos con dignidad, compasión y respeto",
-    "2 Este es un espacio seguro para todos",
-    "3 Código de vestimenta",
+    "Tratar a todos con dignidad, compasión y respeto",
+    "Este es un espacio seguro para todos",
+    "Código de vestimenta",
+    "El estacionamiento para voluntarios es limitado",
+    "Limite el uso de artículos personales y del teléfono",
+    "No fumar, drogas ni alcohol",
+    "No se permite el acceso ni el trato especial",
+    "Siga las pautas de turno y controle las horas",
+    "Comer y beber",
+    "Sea respetuoso, flexible y siga las instrucciones",
 ];
 const es_body = [
     "",
     "Santa Maria se compromete a brindar un ambiente acogedor. Se espera que los voluntarios sean amables y respetuosos con todos: clientes, personal, donantes y compañeros voluntarios.",
     "No se permite el acoso, ya sea verbal, físico o visual. Esto incluye bromas, comentarios o acciones ofensivas basadas en rasgos personales. Reporte cualquier incidente a un gerente de inmediato.",
     "No se permite ropa relacionada con pandillas, ofensiva, reveladora o corta. Los pantalones cortos deben llegar al menos hasta la punta de los dedos. Se requiere calzado cerrado. Se les podría pedir a los voluntarios que se cambien o regresen en otro momento si no cumplen con el código de vestimenta.",
+    "Use las áreas designadas o el estacionamiento en la calle bajo su propio riesgo. No se garantizan los espacios de estacionamiento.",
+    "Santa Maria no se hace responsable de la pérdida o el robo de artículos. Los teléfonos deben estar en silencio; no se permiten mensajes de texto, llamadas ni música durante su turno. Las llamadas urgentes deben atenderse afuera después de notificar a su coordinador.",
+    "No se permite fumar en las instalaciones, incluido el estacionamiento. Los voluntarios no pueden consumir, poseer ni estar bajo la influencia de drogas o alcohol.",
+    "No reserve artículos ni dé preferencia a nadie. Los voluntarios no pueden usar la despensa ni los servicios de ropa el mismo día que prestan servicio.",
+    "Llegue puntualmente, permanezca en su turno completo y notifique a un gerente si va a perder un turno programado o necesita salir antes. Registre su entrada y salida en cada turno. Los directores pueden firmar si es necesario.",
+    "Se pueden tomar descansos en cualquier lugar, pero comer y beber debe limitarse a la cocina. Si necesita tomar un descanso, informe a su gerente.",
+    "Actúe con responsabilidad, trate a los demás con respeto y esté abierto a cambios de tareas. No confronte a los clientes ni a los voluntarios; plantee sus inquietudes a un coordinador, gerente o director. Los voluntarios podrían ser despedidos si no siguen las pautas.",
 ];
 
 const maxStep = en_body.length - 1;
 
-export  function Register(props) {
+export function Register(props) {
         const onUpdate = props.onUpdate;
         const { t, lang } = useLang();
         const [regStep, setRegStep] = useState(0);
@@ -50,10 +74,8 @@ export  function Register(props) {
         // Program
         const [programId, setProgram] = useState('0');
         const [rawPrograms, setRawPrograms] = useState([]);
-        // const [programs, setPrograms] = useState([])
 
         useEffect(() => {
-            console.log("Effect 1")
             getPrograms()
                 .then( programsList => {
                     setRawPrograms(programsList)
@@ -62,7 +84,6 @@ export  function Register(props) {
         }, []);
 
         // useEffect(() => {
-        //     console.log("Effect 2")
         //     // Sort + localize programs when lang or data changes
         //     if (!rawPrograms.length) return;
         //     const cleanPrograms = prepareProgramsList(rawPrograms, lang)    
@@ -71,12 +92,21 @@ export  function Register(props) {
 
         // Better: memoize the result instead of updating a state variable
         // const programs = useMemo(() => {
-        //     console.log("Memo 2")
         //     return prepareProgramsList(rawPrograms, lang);
         // }, [lang, rawPrograms]);
 
         // Even better: Just compute on the fly
         const programs = prepareProgramsList(rawPrograms, lang);
+
+        const finishRegistration = async () => {
+            setVolunteerAttrs(volunteerId, {regComplete: true})
+                .then(result => {
+                    setCookie("volunteerName", firstName);
+                    setCookie("volunteerId", volunteerId);
+                    onUpdate(); // cause caller to reload cookies
+                })
+                .catch(console.error);
+        }
 
         const handleRegister = async () => {            
             registerVolunteer(firstName, lastName, telephone, email, programId)
@@ -84,7 +114,7 @@ export  function Register(props) {
                     console.log( "Registration:", result )
                     setVolunteerId(result.id)
                     if (result.regComplete)
-                        setRegStep(maxStep + 1);
+                        finishRegistration();
                     else
                         setRegStep(1);
                 })
@@ -100,24 +130,28 @@ export  function Register(props) {
                     <Box component="section">
                         <Typography fontSize="20px" color='#6FADAF'>{ t('volunteerUpper') }</Typography>
                         <TextField label={ t('firstName') } value={firstName} onChange={e => setFirstName(e.target.value)} fullWidth margin="dense" size="small" 
+                            id="firstName"
                             sx={{ 
                                 mb: .5,
                                 backgroundColor: 'rgba(255, 255, 255, 0.44)',
                                 borderRadius: '4px' 
                             }} />
                         <TextField label={ t('lastName') } value={lastName} onChange={e => setLastName(e.target.value)} fullWidth margin="dense" size="small" 
+                            id="lastName"
                             sx={{ 
                                 mb: .5,
                                 backgroundColor: 'rgba(255, 255, 255, 0.44)',
                                 borderRadius: '4px' 
                             }} />
                         <TextField label={ t('telephone') } value={telephone} onChange={e => setTelephone(e.target.value)} fullWidth margin="dense" size="small" 
+                            id="telephone"
                             sx={{ 
                                 mb: .5,
                                 backgroundColor: 'rgba(255, 255, 255, 0.44)',
                                 borderRadius: '4px' 
                             }} />
                         <TextField label={ t('email') } value={email} onChange={e => setEmail(e.target.value)} fullWidth margin="dense" size="small" 
+                            id="email"
                             sx={{ 
                                 mb: .5,
                                 backgroundColor: 'rgba(255, 255, 255, 0.44)',
@@ -130,21 +164,22 @@ export  function Register(props) {
                         <FormControl fullWidth margin="normal">
                             <InputLabel id="program-label">{ t('program') }</InputLabel>
                             <Select
-                            labelId="program-label"
-                            value={ programId }
-                            label={ t('program') }
-                            onChange={e => setProgram(e.target.value)}
-                            margin="dense" 
-                            size="small"
-                            sx={{ 
-                                mb: .5,
-                                backgroundColor: 'rgba(255, 255, 255, 0.44)',
-                                borderRadius: '4px' 
-                            }}
+                                id="program"
+                                labelId="program-label"
+                                value={ programId }
+                                label={ t('program') }
+                                onChange={e => setProgram(e.target.value)}
+                                margin="dense" 
+                                size="small"
+                                sx={{ 
+                                    mb: .5,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.44)',
+                                    borderRadius: '4px' 
+                                }}
                             >
-                            {programs.map(prog => (
-                                <MenuItem key={prog.programId} value={prog.ProgramId}>{prog.ProgramName}</MenuItem>
-                            ))}
+                                {programs.map(prog => (
+                                    <MenuItem key={prog.programId} value={prog.ProgramId}>{prog.ProgramName}</MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Box>
@@ -161,19 +196,7 @@ export  function Register(props) {
                     </Box>
                 </>
             )
-        } else if (regStep > maxStep) {
-            console.log('Final step', regStep);
-            // setRegStep(regStep + 1);
-            setVolunteerAttrs(volunteerId, {regComplete: true})
-                .then(result => {
-                    setCookie("volunteerName", firstName);
-                    setCookie("volunteerId", volunteerId);
-                    onUpdate(); // cause caller to reload cookies
-                    console.log( "Registration Complete");
-                })
-                .catch(console.error);
-            return (<></>);
-        } else {
+        } else if (regStep <= maxStep) {
             return (
                 <>
                     <Box component="section">
@@ -184,12 +207,20 @@ export  function Register(props) {
                             variant="contained" 
                             color="primary"
                             disabled={false}
-                            onClick={ () => {setRegStep(regStep + 1); } } 
+                            onClick={ () => {
+                                if (regStep == maxStep) 
+                                    finishRegistration();
+                                else
+                                    setRegStep(regStep + 1);
+                            } }
+                            id={"agree_" + regStep}
                         >
                             { t('agree') }
                         </Button>
                     </Box>
                 </>
             );
+        } else  {
+            return (<></>);
         }
     }
