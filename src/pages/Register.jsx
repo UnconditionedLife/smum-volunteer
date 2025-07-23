@@ -98,12 +98,16 @@ export function Register(props) {
         // Even better: Just compute on the fly
         const programs = prepareProgramsList(rawPrograms, lang);
 
+        const updateCookies = (firstName, volunteerId) => {
+            setCookie("volunteerName", firstName);
+            setCookie("volunteerId", volunteerId);
+            onUpdate(); // cause caller to reload cookies
+        }
+
         const finishRegistration = async () => {
             setVolunteerAttrs(volunteerId, {regComplete: true})
                 .then(result => {
-                    setCookie("volunteerName", firstName);
-                    setCookie("volunteerId", volunteerId);
-                    onUpdate(); // cause caller to reload cookies
+                    updateCookies(firstName, volunteerId);
                 })
                 .catch(console.error);
         }
@@ -111,10 +115,9 @@ export function Register(props) {
         const handleRegister = async () => {            
             registerVolunteer(firstName, lastName, telephone, email, programId)
                 .then(result => {
-                    console.log( "Registration:", result )
-                    setVolunteerId(result.id)
+                    setVolunteerId(result.id);
                     if (result.regComplete)
-                        finishRegistration();
+                        updateCookies(firstName, result.id);
                     else
                         setRegStep(1);
                 })
@@ -186,9 +189,10 @@ export function Register(props) {
 
                     <Box component="section">
                         <Button 
+                            id="continue"
                             variant="contained" 
                             color="primary"
-                            disabled={false}
+                            disabled={!firstName || !lastName || (!telephone && !email)}
                             onClick={handleRegister}
                         >
                             { t('continue') }
@@ -201,8 +205,8 @@ export function Register(props) {
                 <>
                     <Box component="section">
                         <Typography fontSize="20px" color='#6FADAF'>{ t('agreementUpper') }</Typography>
-                        <Typography variant="h6">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
-                        <Typography align="left">{(lang == 'es') ? es_body[regStep] : en_body[regStep]}</Typography>
+                        <Typography variant="h6" color="#000">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
+                        <Typography align="left" color="#000">{(lang == 'es') ? es_body[regStep] : en_body[regStep]}</Typography>
                         <Button 
                             variant="contained" 
                             color="primary"
