@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import SmumLogo from '../assets/SmumLogo';
 import dayjs from 'dayjs';
@@ -18,11 +17,6 @@ dayjs.extend(timezone);
 export default function Home({ isShrunk }) {
     const { lang } = useLang();
     const { t } = useLang();
-
-    // URL Values XXX
-    // const params = useParams();
-    // console.log("params", params)
-    // const initialActivityId = params.activityId || '0';
     
     // State
     const [knownName, setKnownName] = useState('');

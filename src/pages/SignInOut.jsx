@@ -15,13 +15,12 @@ export function SignInOut(props) {
 
     // URL Values
     const params = useParams();
-    const initialActivityId = params.activityId || '0';
     
     // Volunteer info
     const [volunteerId, setVolunteerId]= useState('');
 
     // Activity & Time
-    const [activityId, setActivity] = useState(initialActivityId);
+    const [activityId, setActivity] = useState(0);
     const [rawActivities, setRawActivities] = useState([]);
 
     //   const [time, setTime] = useState(() => new Date().toISOString().slice(0, 16));
@@ -40,6 +39,7 @@ export function SignInOut(props) {
             setActivity(activityCookie);
         } else {
             setCheckedIn(false);
+            setActivity(params.activityId || 0);
         }
 
         const nameCookie = getCookie("volunteerName");
@@ -69,14 +69,14 @@ export function SignInOut(props) {
     const handleSignIn = async () => {
         setCheckedIn(true);
         setCookie("volunteerActivity", activityId);
-        await logAction(volunteerId, "check-in", activityId)
+        await logAction(volunteerId, "check-in", activityId, time)
             .catch(console.error);
     };
 
     const handleSignOut = async () => {
         deleteCookie("volunteerActivity");
         setCheckedIn(false);
-        await logAction(volunteerId, "check-out", activityId)
+        await logAction(volunteerId, "check-out", activityId, time)
             .catch(console.error);
     };
 

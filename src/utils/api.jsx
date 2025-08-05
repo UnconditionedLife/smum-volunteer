@@ -1,5 +1,6 @@
 import { generateVolunteerId } from './generateVolunteerId';
 
+
 const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; // XXX need dev version too?
 
 /*
@@ -21,14 +22,14 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; 
 export async function registerVolunteer(firstName, lastName, telephone, email, programId) {
     const complete = (firstName == "Merlin"); // XXX return from Register API
 
-    const volunteerId = await generateVolunteerId(email, telephone);
+    const volunteerId = await generateVolunteerId(email, telephone); // XXX remove
     const response = await fetch(`${API_BASE}/volunteers`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ 
-            "volunteerId": volunteerId, 
+            "volunteerId": volunteerId, // XXX return from database instead
             "fullName": firstName + " " + lastName, 
             "telephone": telephone, 
             "email": email, 
@@ -70,10 +71,10 @@ export async function setVolunteerAttrs(volunteerId, attrs) {
     Program id is not included as an input parameter but should be saved in the shift
     record based on the volunteer's current program id at the time of call.
 */
-export async function logAction(volunteerId, action, activityId) {
-    console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId)
-    
-    const timestamp = new Date().toISOString();
+export async function logAction(volunteerId, action, activityId, when) {
+    console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId, "when:", when)
+
+    const timestamp = new Date().toISOString(); // XXX used passed in time
     const programId = 0; // XXX lambda function should get this from volunteer's current program
     const response = await fetch(`${API_BASE}/shiftAction`, {
         method: "PUT",
@@ -85,7 +86,7 @@ export async function logAction(volunteerId, action, activityId) {
             action,
             timestamp,
             activityId,
-            programId, 
+            programId, // XXX remove
         })
     });
 
@@ -116,7 +117,7 @@ export function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-export function setCookie(name, value, days = 1) {
+export function setCookie(name, value, days = 365) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${value}; expires=${expires}; path=/`;
 }
