@@ -203,10 +203,26 @@ export function Register(props) {
         } else if (regStep <= maxStep) {
             return (
                 <>
-                    <Box component="section">
+                    <Box component="section" textAlign='center'>
                         <Typography fontSize="20px" color='#6FADAF'>{ t('agreementUpper') }</Typography>
-                        <Typography variant="h6" color="#000">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
-                        <Typography align="left" color="#000">{(lang == 'es') ? es_body[regStep] : en_body[regStep]}</Typography>
+                        <Typography color="#000">{t('agreementStmt')}</Typography>
+                        <Box display='flex' width="100%" justifyContent='center'>
+                            <Box 
+                                maxWidth='500px'
+                                width='90vw'
+                                // height='124px'
+                                backgroundColor='#ffffff80'
+                                borderRadius='10px'
+                                border='solid 1px grey'
+                                padding='12px'
+                                alignSelf='center'
+                                mt='10px'
+                                mb='20px'
+                            >
+                                <Typography variant="h6" color="#000">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
+                                <Typography align="left" color="#000">{(lang == 'es') ? es_body[regStep] : en_body[regStep]}</Typography>
+                            </Box>
+                        </Box>
                         <Button 
                             variant="contained" 
                             color="primary"
