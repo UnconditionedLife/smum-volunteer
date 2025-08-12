@@ -18,8 +18,12 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; 
 */
 export async function registerVolunteer(firstName, lastName, telephone, email, programId) {
     const complete = (firstName == "Merlin"); // XXX return from Register API
+    const volunteerId = await generateVolunteerId(email, telephone); // XXX remove
+    console.log("phone before", telephone)
+    telephone = telephone.replace(/\D/g, "");
+    console.log("phone after", telephone)
 
-    const response = await fetch(`${API_BASE}/volunteers/public`, {
+    const response = await fetch(`${API_BASE}/volunteers`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"

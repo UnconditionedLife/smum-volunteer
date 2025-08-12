@@ -22,6 +22,7 @@ export function SignInOut(props) {
     // Activity & Time
     const [activityId, setActivity] = useState(0);
     const [rawActivities, setRawActivities] = useState([]);
+    var activities;
 
     //   const [time, setTime] = useState(() => new Date().toISOString().slice(0, 16));
     const [time, setTime] = useState(() =>
@@ -88,8 +89,9 @@ export function SignInOut(props) {
         onUpdate();
     };
 
-    const activities = prepareActivitiesList(rawActivities, lang);
-    if (activities.length == 0)
+    if (rawActivities.length > 0)
+        activities = prepareActivitiesList(rawActivities, lang);
+    else
         return (<></>);
 
     return (

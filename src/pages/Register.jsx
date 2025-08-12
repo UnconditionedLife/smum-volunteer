@@ -96,7 +96,7 @@ export function Register(props) {
         // }, [lang, rawPrograms]);
 
         // Even better: Just compute on the fly
-        const programs = prepareProgramsList(rawPrograms, lang);
+        var programs;
 
         const updateCookies = (firstName, volunteerId) => {
             setCookie("volunteerName", firstName);
@@ -128,7 +128,9 @@ export function Register(props) {
                 .catch(console.error);
         };
 
-        if (programs.length == 0)
+        if (rawPrograms.length > 0)
+            programs = prepareProgramsList(rawPrograms, lang);
+        else
             return (<></>);
 
         if (regStep == 0) {
