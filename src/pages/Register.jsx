@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import { useLang } from '../utils/languageContext';
-import { setCookie, getPrograms, registerVolunteer, setVolunteerAttrs } from '../utils/api';
+import { setCookie, getPrograms, registerVolunteer, updateVolunteer } from '../utils/api';
 import { prepareProgramsList } from '../utils/buildLists';
 
 const en_header = [
@@ -105,8 +105,11 @@ export function Register(props) {
         }
 
         const finishRegistration = async () => {
-            setVolunteerAttrs(volunteerId, {regComplete: true})
+            console.log("volunteerId:", volunteerId)
+            updateVolunteer(volunteerId, { regComplete: true })
+            // setVolunteerAttrs(volunteerId, {regComplete: true})
                 .then(result => {
+                    console.log(result)
                     updateCookies(firstName, volunteerId);
                 })
                 .catch(console.error);
@@ -115,6 +118,7 @@ export function Register(props) {
         const handleRegister = async () => {            
             registerVolunteer(firstName, lastName, telephone, email, programId)
                 .then(result => {
+                    console.log('register-result', result)
                     setVolunteerId(result.id);
                     if (result.regComplete)
                         updateCookies(firstName, result.id);

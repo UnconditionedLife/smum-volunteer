@@ -1,6 +1,3 @@
-import { generateVolunteerId } from './generateVolunteerId';
-
-
 const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; // XXX need dev version too?
 
 /*
@@ -22,17 +19,16 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; 
 export async function registerVolunteer(firstName, lastName, telephone, email, programId) {
     const complete = (firstName == "Merlin"); // XXX return from Register API
 
-    const volunteerId = await generateVolunteerId(email, telephone); // XXX remove
-    const response = await fetch(`${API_BASE}/volunteers`, {
+    const response = await fetch(`${API_BASE}/volunteers/public`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({ 
-            "volunteerId": volunteerId, // XXX return from database instead
-            "fullName": firstName + " " + lastName, 
+            "firstName": firstName,
+            "lastName": lastName, 
             "telephone": telephone, 
-            "email": email, 
+            "email": email,
             "programId": programId 
         })
     });
@@ -41,8 +37,8 @@ export async function registerVolunteer(firstName, lastName, telephone, email, p
     if (!response.ok) 
         throw new Error(data.message || "Failed to register");
     else
-        // return data;
-        return {id: volunteerId, regComplete: complete};
+        console.log(data)
+        return data;
     }
 
 /*
@@ -54,9 +50,58 @@ export async function registerVolunteer(firstName, lastName, telephone, email, p
 
     Sets attributes of the specified volunteer, currently only the regComplete attribute.
 */
-export async function setVolunteerAttrs(volunteerId, attrs) {
-    // XXX call API to set updated attributes
-    return attrs;
+// export async function setVolunteerAttrs(volunteerId, attrs) {
+//     // XXX call API to set updated attributes ––– TODO NEW API
+//     return attrs;
+// }
+
+export async function updateVolunteer(volunteerId, updates = {}) {
+    
+    if (!volunteerId) throw new Error("Missing volunteer id");
+
+    // Prepare a minimal body: only include provided fields
+    const body = {};
+    if (updates.firstName !== undefined) body.firstName = String(updates.firstName);
+    if (updates.lastName  !== undefined) body.lastName  = String(updates.lastName);
+    if (updates.telephone !== undefined) {
+        // normalize like the Lambda does
+        body.telephone = String(updates.telephone).replace(/\D/g, "");
+    }
+    if (updates.email !== undefined) {
+        body.email = String(updates.email).trim().toLowerCase();
+    }
+    if (updates.programId !== undefined) body.programId = String(updates.programId);
+    if (typeof updates.regComplete === "boolean") body.regComplete = updates.regComplete;
+
+    if (Object.keys(body).length === 0) {
+        throw new Error("No updatable fields provided");
+    }
+
+    const url = `${API_BASE}/volunteers/public/${encodeURIComponent(volunteerId)}`;
+
+    const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+    });
+
+    let data;
+    try {
+        data = await response.json();
+    } catch {
+        data = {};
+    }
+
+    if (!response.ok) {
+        const msg = data?.message || `Update failed (${response.status} ${response.statusText})`;
+        throw new Error(msg);
+    }
+
+    // Example Lambda response shape:
+    // { VolunteerId, firstName, lastName, telephone, email, ProgramId, RegComplete }
+  return data;
 }
 
 /*
@@ -71,11 +116,11 @@ export async function setVolunteerAttrs(volunteerId, attrs) {
     Program id is not included as an input parameter but should be saved in the shift
     record based on the volunteer's current program id at the time of call.
 */
-export async function logAction(volunteerId, action, activityId, when) {
-    console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId, "when:", when)
-
-    const timestamp = new Date().toISOString(); // XXX used passed in time
-    const programId = 0; // XXX lambda function should get this from volunteer's current program
+export async function logAction(volunteerId, action, activityId) {
+    console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId)
+    
+    const timestamp = new Date().toISOString();
+    const programId = 0; // XXX lambda function should get this from volunteer's current program // TODO GET PROGRAM FROM USER RECORD
     const response = await fetch(`${API_BASE}/shiftAction`, {
         method: "PUT",
         headers: {
@@ -86,7 +131,7 @@ export async function logAction(volunteerId, action, activityId, when) {
             action,
             timestamp,
             activityId,
-            programId, // XXX remove
+            programId, 
         })
     });
 
@@ -117,7 +162,7 @@ export function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-export function setCookie(name, value, days = 365) {
+export function setCookie(name, value, days = 1) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${value}; expires=${expires}; path=/`;
 }
