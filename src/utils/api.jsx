@@ -166,11 +166,22 @@ export function getCookie(name) {
     if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-export function setCookie(name, value, days = 1) {
+export function setCookie(name, value, days = 365) {
     const expires = new Date(Date.now() + days * 864e5).toUTCString();
     document.cookie = `${name}=${value}; expires=${expires}; path=/`;
 }
 
 export function deleteCookie(name) {
     setCookie(name, '', -1);
+}
+
+export async function sendEmail({ to, subject, text, html }) {
+  const res = await fetch(`${API_BASE}/email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ to, subject, text, html })
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Send failed");
+  return data; // { messageId }
 }
