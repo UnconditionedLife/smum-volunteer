@@ -1,7 +1,7 @@
 
 body {
     font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #fefaf5, #b9d8be);
+    background: linear-gradient(to bottom, #fefaf5, #b9d8be);
     margin: 0 auto;
     padding: 0;
   }
@@ -12,16 +12,19 @@ body {
   margin: 0 auto;
   padding: 0;
   text-align: center;
+    /* top padding that respects iOS/Android notches; tweak 8px if you want more space */
+  --safe-top: max(env(safe-area-inset-top, 0px), 8px);
 }
 
 .app-container {
     min-height: 100vh;
     width: 100vw;
     max-width: 800px;
-    /* background: linear-gradient(to bottom, #fefaf5, #b9d8be); */
     position: relative;
     overflow: hidden;
 }
+.app-container.allow-overflow { overflow: visible; } /* add this */
+
 
 .logo {
   height: 6em;
@@ -51,60 +54,50 @@ body {
   }
 }
 
+@media (max-width: 480px) {
+  .shrink-to-header { transform: translateY(-23vh) scale(0.35); }
+}
+
 .card {
-  padding: 2em;
+   padding: 2em;
 }
 
 .read-the-docs {
-  color: #888;
+   color: #888;
 }
 
-.splash-screen {
-    position: fixed;
-    margin-top: 20px;
-    inset: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeOut 1s ease-in-out 1.8s forwards;
-  }
-  
-  .splash-logo {
+.splash-logo {
+    display: inline-block;
     width: 180px;
     height: auto;
-    transition: all 0.8s ease;
-  }
+    transform-origin: center center; /* center-to-center math below */
+    transform: translate(0, 0) scale(1);
+    transition: transform 0.7s ease; /* a touch snappier on mobile */
+    will-change: transform;
+}
   
-  .header-logo {
-    width: 40px;
-    margin-top: 16px;
-    margin-left: calc(50% - 20px);
-    transition: all 0.4s ease;
-  }
+.header-logo {
+    width: 60px;
+    /* margin-top: 16px; */
+    /* margin-left: calc(50% - 20px); */
+    transition: all 0.8s ease;
+}
   
 .shrink-to-header {
-    position: fixed;
-    top: 16px;
-    left: calc(50% - 20px);
-    width: 40px;
-    transform: translateY(0);
-    transition: all 0.8s ease;
+  /* move up toward the header and scale down */
+  transform: translateY(-28vh) scale(0.35);
+  /* opacity: 1; */
 }
 
 .splash-screen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(to bottom, #fefaf5, #b9d8be);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeOut 0.8s ease-in-out 1.8s forwards;
-    text-align: center;
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; justify-content: center; align-items: center;
+  background: linear-gradient(to bottom, #fefaf5, #b9d8be);
 }
-  
-  .splash-content {
+
+.app-container.allow-overflow { overflow: visible; }
+
+.splash-content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -131,3 +124,5 @@ body {
       opacity: 1;
     }
 }
+
+
