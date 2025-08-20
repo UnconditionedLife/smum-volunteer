@@ -1,8 +1,10 @@
 const translations = {
     en: {
-      welcome: "Welcome to the Volunteer Portal",
+      welcome: "Welcome",
+      welcomeToThePortal: "Welcome to the Volunteer Portal",
       tagline: "Making a difference, one volunteer at a time.",
       volunteerUpper: "VOLUNTEER",
+      logInAsDiff: "Log in as a different user",
       firstName: "First Name",
       lastName: "Last Name",
       telephone: "Telephone",
@@ -24,9 +26,11 @@ const translations = {
       agreementStmt: "We ask that volunteers agree to these 10 guidelines.",
     },
     es: {
-      welcome: "Bienvenido al Portal de Voluntarios",
+      welcome: "Bienvenido",
+      welcomeToThePortal: "Bienvenido al Portal de Voluntarios",
       tagline: "Marcando la diferencia, un voluntario a la vez.",
       volunteerUpper: "VOLUNTARIO",
+      logInAsDiff: "Iniciar sesión como otro usuario",
       firstName: "Nombre",
       lastName: "Apellido",
       telephone: "Teléfono",
