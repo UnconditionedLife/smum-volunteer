@@ -90,7 +90,7 @@ export function SignInOut(props) {
     };
 
     if (rawActivities.length > 0)
-        activities = prepareActivitiesList(rawActivities, lang);
+        activities = prepareActivitiesList(rawActivities, lang, params.activityId);
     else
         return (<></>);
 
@@ -99,11 +99,11 @@ export function SignInOut(props) {
             {/* Volunteer Info Section */}
             <Box component="section">
                 <Box mb={8}>
-                    <Typography variant="h6">Welcome, {knownName}!</Typography>
+                    <Typography variant="h6">{ t('welcome') }, {knownName}!</Typography>
                     <Typography variant="subtitle1" fontSize="12px" color="primary">{checkedIn ? t('checkedIn') : t('checkedOut')}</Typography>
                     {!checkedIn && (
                         <Button variant="text" color="secondary" onClick={handleNewUser} sx={{ mt: 1 }}>
-                            Log in as a different user
+                            { t('logInAsDiff') }
                         </Button>
                     )}
                 </Box>
