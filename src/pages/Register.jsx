@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import { useLang } from '../utils/languageContext';
-import { setCookie, getPrograms, registerVolunteer, updateVolunteer } from '../utils/api';
-import { prepareProgramsList } from '../utils/buildLists';
+import { setCookie, registerVolunteer, updateVolunteer, sendEmail } from '../utils/api';
 
 const en_header = [
     "",
@@ -70,33 +69,6 @@ export function Register(props) {
         const [telephone, setTelephone] = useState('');
         const [email, setEmail] = useState('');
         const [volunteerId, setVolunteerId]= useState('');
-    
-        // Program
-        const [programId, setProgram] = useState('0');
-        const [rawPrograms, setRawPrograms] = useState([]);
-
-        useEffect(() => {
-            getPrograms()
-                .then( programsList => {
-                    setRawPrograms(programsList)
-                })
-                .catch(console.error);
-        }, []);
-
-        // useEffect(() => {
-        //     // Sort + localize programs when lang or data changes
-        //     if (!rawPrograms.length) return;
-        //     const cleanPrograms = prepareProgramsList(rawPrograms, lang)    
-        //     setPrograms(cleanPrograms);
-        // }, [lang, rawPrograms]);
-
-        // Better: memoize the result instead of updating a state variable
-        // const programs = useMemo(() => {
-        //     return prepareProgramsList(rawPrograms, lang);
-        // }, [lang, rawPrograms]);
-
-        // Even better: Just compute on the fly
-        var programs;
 
         const updateCookies = (firstName, volunteerId) => {
             setCookie("volunteerName", firstName);
@@ -111,12 +83,20 @@ export function Register(props) {
                 .then(result => {
                     console.log(result)
                     updateCookies(firstName, volunteerId);
+                    sendEmail(
+                        {
+                            to: "jose@radicalpurpose.org",
+                            subject: "Hello from the APP!!!",
+                            text: "This is really the APP!!",
+                            html: ""
+                        }
+                    )
                 })
                 .catch(console.error);
         }
 
         const handleRegister = async () => {            
-            registerVolunteer(firstName, lastName, telephone, email, programId)
+            registerVolunteer(firstName, lastName, telephone, email)
                 .then(result => {
                     console.log('register-result', result)
                     setVolunteerId(result.id);
@@ -128,15 +108,10 @@ export function Register(props) {
                 .catch(console.error);
         };
 
-        if (rawPrograms.length > 0)
-            programs = prepareProgramsList(rawPrograms, lang);
-        else
-            return (<></>);
-
         if (regStep == 0) {
             return (
                 <>
-                    <Box component="section">
+                    <Box component="section" mb={ 2 } mt={ 2 }>
                         <Typography fontSize="20px" color='#6FADAF'>{ t('volunteerUpper') }</Typography>
                         <TextField label={ t('firstName') } value={firstName} onChange={e => setFirstName(e.target.value)} fullWidth margin="dense" size="small" 
                             id="firstName"
@@ -167,32 +142,6 @@ export function Register(props) {
                                 borderRadius: '4px' 
                             }} />
                     </Box>
-
-                    <Box component="section" mt={4} mb={2}>
-                        <Typography fontSize="20px" color='#6FADAF'>{ t('programUpper') }</Typography>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel id="program-label">{ t('program') }</InputLabel>
-                            <Select
-                                id="program"
-                                labelId="program-label"
-                                value={ programId }
-                                label={ t('program') }
-                                onChange={e => setProgram(e.target.value)}
-                                margin="dense" 
-                                size="small"
-                                sx={{ 
-                                    mb: .5,
-                                    backgroundColor: 'rgba(255, 255, 255, 0.44)',
-                                    borderRadius: '4px' 
-                                }}
-                            >
-                                {programs.map(prog => (
-                                    <MenuItem key={prog.programId} value={prog.ProgramId}>{prog.ProgramName}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-
                     <Box component="section">
                         <Button 
                             id="continue"
@@ -225,7 +174,7 @@ export function Register(props) {
                                 mt='10px'
                                 mb='20px'
                             >
-                                <Typography variant="h6" color="#000">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
+                                <Typography variant="h6" color="#000" lineHeight="50px">{(lang == 'es') ? es_header[regStep] : en_header[regStep]}</Typography>
                                 <Typography align="left" color="#000">{(lang == 'es') ? es_body[regStep] : en_body[regStep]}</Typography>
                             </Box>
                         </Box>
