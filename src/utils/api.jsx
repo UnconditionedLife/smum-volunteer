@@ -176,12 +176,12 @@ export function deleteCookie(name) {
 }
 
 export async function sendEmail({ to, subject, text, html }) {
-  const res = await fetch(`${API_BASE}/email`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ to, subject, text, html })
-  });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Send failed");
-  return data; // { messageId }
+    const res = await fetch(`${API_BASE}/email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ to, subject, text, html })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Send failed");
+    return data; // { messageId }
 }
