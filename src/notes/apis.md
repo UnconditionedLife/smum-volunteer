@@ -165,3 +165,26 @@ These endpoints are used by **Admin users** in the FoodBank.click dashboard and 
 - `200 OK` — Returns shift items.
 - `400 Bad Request` — Missing both programId and activityId.
 - `500 Internal Server Error`
+
+---
+
+### **POST /email (PUBLIC)**
+
+**Description:** Send an email via the platform (front-end uses this to deliver messages such as confirmations or notifications).
+
+**Request Body:**
+```json
+{
+  "to": "string | string[]",
+  "subject": "string",
+  "text": "string (optional)",
+  "html": "string (optional)"
+}
+```
+At least one of text or html is required.
+
+**Responses:**
+- `200 OK` — { "messageId": "string" } Email accepted by the mail provider.
+- `400 Bad Request` — Missing required fields or invalid payload (e.g., no to, neither text nor html).
+- `429 Too Many Requests` — Too Many Requests — (Optional) Throttled if request rate is exceeded.
+- `500 Internal Server Error` — Unexpected error sending the email.
