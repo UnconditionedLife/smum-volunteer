@@ -44,13 +44,17 @@ const translations = {
         agreementsBdy8: "Arrive on time, stay your full shift, notify a manager if you will miss a planned shift or need to leave early. Clock in and out for each shift. Directors can sign off if needed.",
         agreementsBdy9: "Breaks may be taken anywhere, but eating and drinking should be limited to the kitchen. If you need to take a break, inform your manager.",
         agreementsBdy10: "Act responsibly, treat others with respect, and be open to changing tasks. Do not confront clients or volunteers—bring concerns to a coordinator, manager, or director. Volunteers may be released if guidelines aren’t followed.",
-        regEmailSubject: "Thank you for volunteering at Santa María",    
-        regEmailIntro1: "Thank you for your service",
-        regEmailIntro2: "You have been registered and can now use the Santa María Volunteer App to check in and out as a volunteer.",
-        regEmailAgreementsLead: "As a reminder, here are the terms of volunteering with Santa María you have just agreed to:",
-        regEmailClosing1: "With gratitude",
-        regEmailClosing2: "Santa Maria Urban Ministry"
-        
+        regEmailSubject: "Thank you for volunteering at Santa Maria",    
+        regEmailThankYou: "Thank you",
+        regEmailThankYouFor: "for joining Santa Maria Urban Ministry as a volunteer!",
+        regEmailBody1: "As a volunteer, you are a critical part of our team -- creating positive transformation in our community.",
+        regEmailBody2: "Now that you are registered, you can use the Santa Maria Volunteer App to check in and out when you volunteer by scanning the QR code in the area where you are working.",
+        regEmailBody3: "Welcome to the Santa Maria Team! We are happy to serve side by side with you.",
+        regEmailSign1Name: "Alfonso Mendez,",
+        regEmailSign1Role: "Director of Operations",
+        regEmailSign2Name: "Louis Powell,",
+        regEmailSign2Role: "Executive Director",
+        regEmailAgreementsLead: "The Santa Maria Volunteer Code of Conduct:"
     },
     es: {
         welcome: "Bienvenido",
@@ -98,11 +102,16 @@ const translations = {
         agreementsBdy9: "Se pueden tomar descansos en cualquier lugar, pero comer y beber debe limitarse a la cocina. Si necesita tomar un descanso, informe a su gerente.",
         agreementsBdy10: "Actúe con responsabilidad, trate a los demás con respeto y esté abierto a cambios de tareas. No confronte a los clientes ni a los voluntarios; plantee sus inquietudes a un coordinador, gerente o director. Los voluntarios podrían ser despedidos si no siguen las pautas.",
         regEmailSubject: "¡Gracias por ser voluntario en Santa María",
-        regEmailIntro1: "Gracias por tu servicio",
-        regEmailIntro2: "Te has registrado y ahora puedes usar la aplicación de Voluntarios de Santa María para registrar tu entrada y salida como voluntario.",
-        regEmailAgreementsLead: "Como recordatorio, aquí están los términos de voluntariado con Santa María que acabas de aceptar:",
-        regEmailClosing1: "Con gratitud",
-        regEmailClosing2: "Santa Maria Urban Ministry"
+        regEmailThankYou: "Gracias",
+        regEmailThankYouFor: "por unirte a Santa Maria Urban Ministry como voluntario/a.",
+        regEmailBody1: "Como voluntario/a, eres una parte fundamental de nuestro equipo — creando una transformación positiva en nuestra comunidad.",
+        regEmailBody2: "Ahora que estás registrado/a, puedes usar la aplicación de voluntarios de Santa Maria para registrar tu entrada y salida cuando seas voluntario/a, escaneando el código QR en el área donde estés trabajando.",
+        regEmailBody3: "¡Bienvenido/a al equipo de Santa Maria! Estamos felices de servir a tu lado.",
+        regEmailSign1Name: "Alfonso Méndez,",
+        regEmailSign1Role: "Director de Operaciones",
+        regEmailSign2Name: "Louis Powell,",
+        regEmailSign2Role: "Director Ejecutivo",
+        regEmailAgreementsLead: "Código de Conducta de Voluntarios de Santa Maria:"
     },
 };
   

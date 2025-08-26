@@ -27,9 +27,8 @@ export async function registerVolunteer(firstName, lastName, telephone, email, p
         body: JSON.stringify({ 
             "firstName": firstName,
             "lastName": lastName, 
-            "telephone": telephone, 
-            "email": email,
-            "programId": programId 
+            "telephone": telephone,
+            "email": email
         })
     });
 

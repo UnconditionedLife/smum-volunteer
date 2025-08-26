@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import { useLang } from '../utils/languageContext';
 import { setCookie, registerVolunteer, updateVolunteer, sendEmail } from '../utils/api';
@@ -21,16 +21,20 @@ export function Register(props) {
 
     function buildEmailTextBody() {
         let body = 
-            `${t("regEmailIntro1")}, ${ firstName }.\n\n` +
-            `${t("regEmailIntro2")}\n\n` +
+            `${t("regEmailThankYou")}, ${ firstName } ${t("regEmailThankYouFor")}.\n\n` +
+            `${t("regEmailBody1")}\n\n` +
+            `${t("regEmailBody2")}\n\n` +
+            `${t("regEmailBody3")}\n\n\n` +
+            `${t("regEmailSign1Name")}\n` +
+            `${t("regEmailSign1Role")}\n\n` +
+            `${t("regEmailSign2Name")}\n` +
+            `${t("regEmailSign2Role")}\n\n\n` +
             `${t("regEmailAgreementsLead")}\n\n`;
 
         for (let i = 1; i <= maxStep; i++) {
             body += `<b>${t(`agreementsHdr${i}`)}</b>\n`;
             body += `${t(`agreementsBdy${i}`)}\n\n`;
         }
-
-        body += `${t("regEmailClosing1")},\n ${t("regEmailClosing2")}`;
         return body;
     }
 
@@ -48,9 +52,15 @@ export function Register(props) {
                 `<!doctype html>
                 <html lang="${lang}" dir="ltr">
                     <body style="margin:0; padding:20px; font-family: Arial, Helvetica, sans-serif; line-height:1.5; color:#111;">
-                    <p style="margin:0 0 12px;">${t("regEmailIntro1")}, ${ firstName }.</p>
-                    <p style="margin:0 0 12px;">${t("regEmailIntro2")}</p>
-                    <p style="margin:0 0 12px;">${t("regEmailAgreementsLead")}</p>
+                    <p style="margin:0 0 12px;">${t("regEmailThankYou")}, ${ firstName }, ${t("regEmailThankYouFor")}</p>
+                    <p style="margin:0 0 12px;">${t("regEmailBody1")}</p>
+                    <p style="margin:0 0 12px;">${t("regEmailBody2")}</p>
+                    <p style="margin:0 0 24px;">${t("regEmailBody3")}</p>
+                    <p style="margin:0 0 0px;">${t("regEmailSign1Name")}</p>
+                    <p style="margin:0 0 24px;">${t("regEmailSign1Role")}</p>
+                    <p style="margin:0 0 0px;">${t("regEmailSign2Name")}</p>
+                    <p style="margin:0 0 24px;">${t("regEmailSign2Role")}</p>
+                    <p style="font-weight:900; margin:0 0 24px;">${t("regEmailAgreementsLead")}</p>
                     <ol style="margin:0 0 16px 20px; padding:0;">`
 
             for (let i = 1; i <= maxStep; i++) {
@@ -61,7 +71,6 @@ export function Register(props) {
             }
             
             body += `</ol>
-                    <p style="margin:16px 0 0;">${t("regEmailClosing1")},<br/>${t("regEmailClosing2")}</p>
                     </body>
                     </html>`
             return body;
@@ -74,11 +83,10 @@ export function Register(props) {
         }
 
         const finishRegistration = async () => {
-            console.log("volunteerId:", volunteerId)
             updateVolunteer(volunteerId, { regComplete: true })
             // setVolunteerAttrs(volunteerId, {regComplete: true})
                 .then(result => {
-                    console.log("UPDATE VOLUNTEER:", result)
+                    // console.log("UPDATE VOLUNTEER:", result)
                     updateCookies(firstName, volunteerId);
                     sendEmail(
                         {
@@ -88,7 +96,7 @@ export function Register(props) {
                             html: buildEmailHtmlBody()
                         }
                     ).then(result => {
-                        console.log("EMAIL:", result)
+                        // console.log("EMAIL:", result)
                     })
                 })
                 .catch(console.error);
@@ -97,7 +105,7 @@ export function Register(props) {
         const handleRegister = async () => {            
             registerVolunteer(firstName, lastName, telephone, email)
                 .then(result => {
-                    console.log('register-result', result)
+                    // console.log('register-result', result)
                     setVolunteerId(result.id);
                     if (result.regComplete)
                         updateCookies(firstName, result.id);
@@ -157,20 +165,21 @@ export function Register(props) {
         } else if (regStep <= maxStep) {
             return (
                 <>
-                    <Box component="section" textAlign='center'>
+                    <Box component="section" textAlign='center' mt={2} >
                         <Typography fontSize="20px" color='#6FADAF'>{ t('agreementUpper') }</Typography>
                         <Typography color="#000">{t('agreementStmt')}</Typography>
                         <Box display='flex' width="100%" justifyContent='center'>
                             <Box 
                                 maxWidth='500px'
                                 width='90vw'
-                                backgroundColor='#ffffff80'
+                                backgroundColor='#ffffff70'
                                 borderRadius='10px'
                                 border='solid 1px grey'
                                 padding='12px'
                                 alignSelf='center'
                                 mt='10px'
                                 mb='20px'
+                                minHeight='214px'
                             >
                                 <Box my={ 2 }>
                                     <Typography variant="h6" color="#000" lineHeight="20px">{ t(`agreementsHdr${regStep}`) }</Typography>
@@ -198,4 +207,4 @@ export function Register(props) {
         } else  {
             return (<></>);
         }
-    }
+}
