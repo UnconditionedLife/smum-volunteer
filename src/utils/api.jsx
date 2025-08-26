@@ -16,12 +16,8 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; 
     volunteer (currently only regComplete, meaning the volunteer has accepted all conditions
     of volunteering).
 */
-export async function registerVolunteer(firstName, lastName, telephone, email, programId) {
-    const complete = (firstName == "Merlin"); // XXX return from Register API
-    
-    console.log("phone before", telephone)
+export async function registerVolunteer(firstName, lastName, telephone, email, programId) {    
     telephone = telephone.replace(/\D/g, "");
-    console.log("phone after", telephone)
 
     const response = await fetch(`${API_BASE}/volunteers/public`, {
         method: "PUT",

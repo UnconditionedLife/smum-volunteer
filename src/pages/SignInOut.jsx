@@ -115,21 +115,22 @@ export function SignInOut(props) {
                 <FormControl fullWidth margin="normal">
                     <InputLabel id="activity-label">{ t('activity') }</InputLabel>
                     <Select
-                    labelId="activity-label"
-                    value={ activityId }
-                    label={ t('activity') }
-                    onChange={e => setActivity(e.target.value)}
-                    margin="dense" 
-                    size="small"
-                    sx={{ 
-                        mb: .5,
-                        backgroundColor: 'rgba(255, 255, 255, 0.44)',
-                        borderRadius: '4px' 
-                    }}
-                    >
-                    {activities.map(act => (
-                        <MenuItem key={act.ActivityId} value={act.ActivityId}>{ act[`ActivityName_${lang}`] }</MenuItem>
-                    ))}
+                        labelId="activity-label"
+                        value={ activityId }
+                        label={ t('activity') }
+                        onChange={e => setActivity(e.target.value)}
+                        disabled={checkedIn}
+                        margin="dense" 
+                        size="small"
+                        sx={{ 
+                            mb: .5,
+                            backgroundColor: 'rgba(255, 255, 255, 0.44)',
+                            borderRadius: '4px' 
+                        }}
+                        >
+                        {activities.map(act => (
+                            <MenuItem key={act.ActivityId} value={act.ActivityId}>{ act[`ActivityName_${lang}`] }</MenuItem>
+                        ))}
                     </Select>
                 </FormControl>
                 <TextField
@@ -158,7 +159,7 @@ export function SignInOut(props) {
                     <Button 
                         variant="contained" 
                         color="secondary" 
-                        disabled={activityId === '0'}
+                        disabled={activityId == 0}
                         onClick={handleSignOut} 
                         fullWidth
                     >
@@ -168,7 +169,7 @@ export function SignInOut(props) {
                     <Button 
                         variant="contained" 
                         color="primary"
-                        disabled={activityId === '0'}
+                        disabled={activityId == 0}
                         onClick={handleSignIn} 
                         fullWidth
                     >
