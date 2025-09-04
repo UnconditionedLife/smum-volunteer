@@ -7,6 +7,8 @@ import timezone from 'dayjs/plugin/timezone';
 import { useLang } from '../utils/languageContext';
 import { getCookie, setCookie, deleteCookie, getActivities, logAction } from '../utils/api';
 import { prepareActivitiesList } from '../utils/buildLists';
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export function SignInOut(props) {
     const onUpdate = props.onUpdate;
@@ -51,6 +53,13 @@ export function SignInOut(props) {
         if (idCookie)
             setVolunteerId(idCookie);
     }
+    // Set time
+    useEffect(() => {
+        const tick = () => setTime(dayjs().tz('America/Los_Angeles').format('h:mm'));
+        tick(); // ensure it’s correct immediately
+        const timer = setInterval(tick, 500);
+        return () => clearInterval(timer);
+    }, []);
 
     // Get & Set Activities List
     useEffect(() => {
@@ -133,24 +142,20 @@ export function SignInOut(props) {
                         ))}
                     </Select>
                 </FormControl>
-                <TextField
-                    label={ checkedIn ? t('checkoutTime') : t('checkinTime') }
-                    type="time"
-                    value={ time }
-                    onChange={e => setTime(e.target.value)}
-                    fullWidth
-                    margin="dense" 
-                    size="small"
-                    InputLabelProps={{ shrink: true }}
+                <Typography
+                    variant="h3"
+                    fontWeight="bold"
+                    textAlign="center"
                     sx={{
                         mb: 0.5,
                         backgroundColor: 'rgba(255, 255, 255, 0.44)',
-                        borderRadius: '4px',
-                        '& input': {
-                        textAlign: 'center'
-                        }
+                        borderRadius: '8px',
+                        p: 1,
+                        color: '#000'
                     }}
-                />
+                    >
+                    {time}
+                </Typography>
             </Box>
 
             {/* Confirmation Section */}
