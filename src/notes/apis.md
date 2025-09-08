@@ -168,6 +168,49 @@ These endpoints are used by **Admin users** in the FoodBank.click dashboard and 
 
 ---
 
+### **GET /shiftsAction/{id} (PRIVATE)**
+
+**Description:** Partially update an existing shift log in SMUM_ShiftLogs. Only the fields you send are modified. Send a field as null to remove it. This is not an upsert—fails if the ShiftId doesn’t exist.
+
+**Path Parameter:**
+	•	id — Shift ID (UUID)
+
+**Request Headers:**
+	•	Content-Type: application/json
+
+**Request Body (any subset):**
+```json
+{
+  "Action": "string",                         // e.g., "check-in" | "check-out" | custom
+  "ActivityId": "string",                     // stored as string
+  "Date": "YYYY-MM-DD",
+  "ProgramId": "string",                      // stored as string
+  "TimestampIn": "ISO-8601 datetime",
+  "TimestampOut": "ISO-8601 datetime",
+  "VolunteerId": "string"
+}
+```
+
+**Responses:**
+
+•	200 OK — Returns the updated item:
+```json
+{
+  "id": "string",
+  "Action": "string",
+  "ActivityId": "string",
+  "Date": "YYYY-MM-DD",
+  "ProgramId": "string",
+  "TimestampIn": "ISO-8601",
+  "TimestampOut": "ISO-8601",
+  "VolunteerId": "string"
+}
+```
+•	400 Bad Request — Missing/invalid JSON body or no updatable fields supplied.
+•	404 Not Found — ShiftId does not exist.
+•	500 Internal Server Error
+
+
 ### **POST /email (PUBLIC)**
 
 **Description:** Send an email via the platform (front-end uses this to deliver messages such as confirmations or notifications).
