@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Typography, TextField, MenuItem, Button, Select, InputLabel, FormControl } from '@mui/material';
 import { useLang } from '../utils/languageContext';
 import { setCookie, registerVolunteer, updateVolunteer, sendEmail } from '../utils/api';
+import dayjs from 'dayjs';
 
 const maxStep = 10
 
@@ -16,6 +17,7 @@ export function Register(props) {
     const [telephone, setTelephone] = useState('');
     const [email, setEmail] = useState('');
     const [volunteerId, setVolunteerId]= useState('');
+    const [programId, setProgramId]= useState('0')
 
     const subject = `${t("regEmailSubject")}, ${firstName}!`;
 
@@ -95,15 +97,17 @@ export function Register(props) {
                             text: buildEmailTextBody(),
                             html: buildEmailHtmlBody()
                         }
-                    ).then(result => {
-                        // console.log("EMAIL:", result)
+                    ).then(m_result => {
+                        // console.log("EMAIL:", m_result)
                     })
                 })
                 .catch(console.error);
         }
 
-        const handleRegister = async () => {            
-            registerVolunteer(firstName, lastName, telephone, email)
+        const handleRegister = async () => {  
+            const now = dayjs().tz('America/Los_Angeles');
+            const time = now.toISOString()
+            registerVolunteer(firstName, lastName, telephone, email, programId, time)
                 .then(result => {
                     // console.log('register-result', result)
                     setVolunteerId(result.id);
