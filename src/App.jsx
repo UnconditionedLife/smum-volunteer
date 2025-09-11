@@ -23,6 +23,7 @@ function App() {
                 <Routes>
                 <Route path="/" element={<Home isShrunk={isShrunk} />} />
                 <Route path="/activity/:activityId" element={<Home isShrunk={isShrunk} />} />
+                <Route path="/nocheckin" element={<Home isShrunk={isShrunk} noCkeckin={true} />} />
                 <Route path="*" element={<NotFound />} />
                 </Routes>
             </BrowserRouter>

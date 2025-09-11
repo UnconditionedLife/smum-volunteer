@@ -9,22 +9,27 @@ import LanguageSwitcher from '../components/LanguageSwitcher';
 import { getCookie } from '../utils/api';
 import { Register } from './Register';
 import { SignInOut } from './SignInOut';
+import ThankYou from './ThankYou';
 
 // Extend dayjs with the plugins
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-export default function Home({ isShrunk }) {
+export default function Home({ isShrunk, noCkeckin=false }) {
     const { lang } = useLang();
     const { t } = useLang();
+
+    console.log("NoCHECKIN", noCkeckin)
     
     // State
     const [knownName, setKnownName] = useState('');
+    const [skipCheckin, setSkipCheckin] = useState(noCkeckin)
 
     function readCookies() {
         const nameCookie = getCookie("volunteerName");
         setKnownName(nameCookie);
     }
+
 
     useEffect(() => {
         readCookies();
@@ -40,7 +45,9 @@ export default function Home({ isShrunk }) {
                 </Box>
             </Box>
             <Box component="main" sx={{ flexGrow: 1, overflowY: 'auto', px: 2, }}>
-                { knownName ? <SignInOut onUpdate={readCookies} /> : <Register onUpdate={readCookies} /> }        
+                {!knownName && <Register onUpdate={readCookies} />}
+                {knownName && !skipCheckin && <SignInOut onUpdate={readCookies} />}
+                {knownName && skipCheckin && <ThankYou />}      
             </Box>
             <Box component="footer" sx={{ pt: 1, textAlign: 'center' }}>
                 <Typography fontSize='0.8em' color='#888'> 

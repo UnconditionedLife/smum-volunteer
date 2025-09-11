@@ -63,7 +63,12 @@ const translations = {
         regEmailSign1Role: "Director of Operations",
         regEmailSign2Name: "Louis Powell,",
         regEmailSign2Role: "Executive Director",
-        regEmailAgreementsLead: "The Santa Maria Volunteer Code of Conduct:"
+        regEmailAgreementsLead: "The Santa Maria Volunteer Code of Conduct:",
+
+        processing: "Processing...",
+        thankYouForJoining: "Thank you for joining Santa Maria Urban Ministry as a volunteer!",
+        welcomeToSMUM: "Welcome to the Santa Maria family—we're so grateful you've chosen to share your time and talents. By working together, we strengthen our community and nurture hope for all.",
+        togetherWeCan: "Together We Can!"
     },
     es: {
         welcome: "Bienvenido",
@@ -129,7 +134,12 @@ const translations = {
         regEmailSign1Role: "Director de Operaciones",
         regEmailSign2Name: "Louis Powell,",
         regEmailSign2Role: "Director Ejecutivo",
-        regEmailAgreementsLead: "Código de Conducta de Voluntarios de Santa Maria:"
+        regEmailAgreementsLead: "Código de Conducta de Voluntarios de Santa Maria:",
+
+        processing: "Procesando...",
+        thankYouForJoining: "Gracias por unirse como voluntariado en Santa Maria Urban Ministry",
+        welcomeToSMUM: "Bienvenida a la familia de Santa María. Estamos muy agradecidas de que haya decidido compartir su tiempo y sus talentos. Al trabajar en comunidad, fortalecemos nuestros lazos y cultivamos esperanza para todas las personas.",
+        togetherWeCan: "¡Juntos Podemos!"
     },
 };
   

@@ -1,4 +1,10 @@
-const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; // XXX need dev version too?
+const host = window.location.hostname.toLowerCase();
+const stage = host === 'localhost' || host === '127.0.0.1' ? 'dev' : 'prod';
+const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/" + stage;
+
+console.log("API", API_BASE)
+
+"50c0c5a4-60ca-42f3-8253-bf56e9a79299"
 
 /*
     In
@@ -16,7 +22,7 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/prod"; 
     volunteer (currently only regComplete, meaning the volunteer has accepted all conditions
     of volunteering).
 */
-export async function registerVolunteer(firstName, lastName, telephone, email, programId) {    
+export async function registerVolunteer(firstName, lastName, telephone, email, programId, time) {    
     telephone = telephone.replace(/\D/g, "");
 
     const response = await fetch(`${API_BASE}/volunteers/public`, {
@@ -28,7 +34,9 @@ export async function registerVolunteer(firstName, lastName, telephone, email, p
             "firstName": firstName,
             "lastName": lastName, 
             "telephone": telephone,
-            "email": email
+            "email": email,
+            "programId": programId,
+            "time": time
         })
     });
 
