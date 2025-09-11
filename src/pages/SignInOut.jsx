@@ -8,11 +8,13 @@ import { useLang } from '../utils/languageContext';
 import { getCookie, setCookie, deleteCookie, getActivities, logAction } from '../utils/api';
 import { prepareActivitiesList } from '../utils/buildLists';
 import { Dialog, DialogTitle, DialogContent, IconButton, Stack } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Close, Check, ReportProblem } from '@mui/icons-material';
 import duration from 'dayjs/plugin/duration';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(duration);
+
+console.log("IN SIGNINOUT")
 
 export function SignInOut(props) {
     const onUpdate = props.onUpdate;
@@ -97,21 +99,13 @@ export function SignInOut(props) {
             setVolunteerId(idCookie);
     }
 
-    const tt = (key, fallback) => {
-        const v = t(key);
-        return v && v !== key ? v : fallback;
-    };
-
     const formatRelativeDay = (startedPT) => {
         const todayPT = dayjs().tz('America/Los_Angeles').startOf('day');
         const diff = todayPT.diff(startedPT.startOf('day'), 'day');
         if (diff === 0) return '';
-        // if (diff === 1) return t('yesterday');
-        // if (diff === 2) return t('twoDaysAgo');
-        // return `${diff} ${t('daysAgo')}`;
-        if (diff === 1) return tt('yesterday', 'Yesterday');
-        if (diff === 2) return tt('twoDaysAgo', 'Two days ago');
-        return `${diff} ${tt('daysAgo', 'days ago')}`;
+        if (diff === 1) return t('yesterday', 'Yesterday');
+        if (diff === 2) return t('twoDaysAgo', 'Two days ago');
+        return `${diff} ${t('daysAgo', 'days ago')}`;
     };
 
     // Build a PT datetime using the date from checkInDayPT (YYYY-MM-DD) and the time from checkInAt (ISO).
@@ -127,7 +121,7 @@ export function SignInOut(props) {
 
     // Set time
     useEffect(() => {
-        const tick = () => setTime(dayjs().tz('America/Los_Angeles').format('h:mm'));
+        const tick = () => setTime(dayjs().tz('America/Los_Angeles').format('h:mmA'));
         tick(); // ensure it’s correct immediately
         const timer = setInterval(tick, 500);
         return () => clearInterval(timer);
@@ -171,7 +165,7 @@ export function SignInOut(props) {
 
         setForgotData({
             activityName: actName,
-            checkInTimeText: startedPT ? startedPT.format('h:mm A') : '',
+            checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
             relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
         });
 
@@ -195,23 +189,37 @@ export function SignInOut(props) {
         setCookie("checkInAt", now.toISOString());
         setCookie("checkInDayPT", now.format('YYYY-MM-DD'));
 
-        await logAction(volunteerId, "check-in", activityId, time)
-            .catch(console.error);
+        logAction(volunteerId, "check-in", activityId, time)
+            .then((result) => {
+                console.log("Log Action success:", result);
 
-        // Open confirmation dialog for check-in
-        setConfirmData({
-            type: 'check-in',
-            timeText: now.format('h:mm A'),
-            durationText: '',
-            activityName: getActivityName(activityId),
-        });
-        setConfirmOpen(true);
-        setBusy(false);
+                setConfirmData({
+                    type: 'check-in',
+                    timeText: now.format('h:mm a'),
+                    durationText: '',
+                    activityName: getActivityName(activityId),
+                });
+
+                setConfirmOpen(true);
+            })
+            .catch((err) => {
+      
+                console.error("Log Action failed:", err);
+                setCheckedIn(false);
+
+                // TODO: set an error state to show feedback in the UI
+            })
+            .finally(() => {
+                // Clear busy spinner
+                setBusy(false);
+            });
+            
     };
 
     const handleSignOut = async () => {
         // If the check-in was not today (PT), block checkout and show warning
         setBusy(true);
+
         if (!canCheckoutToday()) {
             const checkInISO = getCookie("checkInAt");
             const dayCookie = getCookie("checkInDayPT");
@@ -219,13 +227,18 @@ export function SignInOut(props) {
 
             setForgotData({
                 activityName: getActivityName(activityId),
-                checkInTimeText: startedPT ? startedPT.format('h:mm A') : '',
+                checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
                 relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
             });
 
-            console.log('[ForgotDialog] startedPT=', startedPT && startedPT.format(), 'relative=', startedPT && formatRelativeDay(startedPT));
+            // console.log(
+            //     '[ForgotDialog] startedPT=', 
+            //     startedPT && startedPT.format(), 
+            //     'relative=', 
+            //     startedPT && formatRelativeDay(startedPT)
+            // );
 
-            // Clear cookies and reset state so the volunteer can start a new shift
+            // Reset so they can start a new shift
             deleteCookie("volunteerActivity");
             deleteCookie("checkInAt");
             deleteCookie("checkInDayPT");
@@ -236,6 +249,7 @@ export function SignInOut(props) {
             return;
         }
 
+        // Normal same-day checkout
         deleteCookie("volunteerActivity");
         setCheckedIn(false);
 
@@ -249,18 +263,26 @@ export function SignInOut(props) {
         }
         deleteCookie("checkInAt");
 
-        await logAction(volunteerId, "check-out", activityId, time)
-            .catch(console.error);
-        
-        // Open confirmation dialog for check-out
-        setConfirmData({
-            type: 'check-out',
-            timeText: now.format('h:mm A'),
-            durationText,
-            activityName: getActivityName(activityId),
+        logAction(volunteerId, "check-out", activityId, time)
+            .then((result) => {
+                console.log("Log Action (checkout) success:", result);
+      
+                setConfirmData({
+                    type: "check-out",
+                    timeText: now.format("h:mm a"),
+                    durationText,
+                    activityName: getActivityName(activityId)
+                });
+                setConfirmOpen(true);
+            })    
+            .catch((err) => {
+                console.error("Log Action (checkout) failed:", err);
+                // TODO Optional: surface a snackbar/dialog here
+                // setError("We couldn't record your check-out. Please try again.");
+            })
+            .finally(() => {
+                setBusy(false);
         });
-        setConfirmOpen(true);
-        setBusy(false);
     };
 
     const handleNewUser = () => {
@@ -274,15 +296,15 @@ export function SignInOut(props) {
     if (rawActivities.length > 0)
         activities = prepareActivitiesList(rawActivities, lang, params.activityId);
     else
-        return (<></>);
+        return (<>ERROR: ACTIVITIES DID NO LOAD</>);
 
     return (
         <>
             {/* Volunteer Info Section */}
             <Box component="section">
                 <Box mb={8}>
-                    <Typography variant="h6">{ t('welcome') }, {knownName}!</Typography>
-                    <Typography variant="subtitle1" fontSize="12px" color="primary">{checkedIn ? t('checkedIn') : t('checkedOut')}</Typography>
+                    <Typography variant="h6" color="textPrimary">{ t('welcome') }, {knownName}!</Typography>
+                    <Typography variant="subtitle1" fontSize="14px" color="primary">{checkedIn ? t('checkedIn') : t('checkedOut')}</Typography>
                     {/* // temporary edit to see if it works to keep it always visible */}
                     {/* {!checkedIn && ( */} 
                         <Button variant="text" color="secondary" onClick={handleNewUser} sx={{ mt: 1 }}>
@@ -328,7 +350,7 @@ export function SignInOut(props) {
                         color: '#000'
                     }}
                     >
-                    {time}
+                    { time }
                 </Typography>
             </Box>
 
@@ -359,7 +381,24 @@ export function SignInOut(props) {
             
             {/* Confirmation Pop-up */}
             <Dialog open={confirmOpen} onClose={closeConfirm} fullWidth maxWidth="xs">
-                <DialogTitle sx={{ pr: 6 }}>
+                <DialogTitle sx={{ pr: 6, marginLeft: 3 }}>
+                    {/* Large checkmark in a circle */}
+                    <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: 50,
+                        height: 50,
+                        borderRadius: '50%',
+                        border: '4px solid darkgreen',
+                        mx: 'auto',
+                        mb: -2,
+                        mt: 3
+                    }}
+                    >
+                        <Check sx={{ fontSize: 40, color: 'darkgreen' }} />
+                    </Box>
                     <Typography
                         variant="h5"
                         component="div"
@@ -375,7 +414,7 @@ export function SignInOut(props) {
                         onClick={closeConfirm}
                         sx={{ position: 'absolute', right: 8, top: 8 }}
                     >
-                        <CloseIcon fontSize="large" />
+                        <Close fontSize="large" />
                     </IconButton>
                 </DialogTitle>
                 <DialogContent>
@@ -386,7 +425,7 @@ export function SignInOut(props) {
                                 textAlign="center"
                                 color="text.secondary"
                             >
-                                <Typography component="span" fontWeight="bold">{confirmData.activityName}</Typography>
+                                <Typography component="span" fontWeight="bold" fontSize={22}>{confirmData.activityName}</Typography>
                             </Typography>
                         )}
                         <Typography variant="h4" fontWeight="bold" textAlign="center">
@@ -408,7 +447,23 @@ export function SignInOut(props) {
 
             {/* Forgot-to-check-out Pop-up */}
             <Dialog open={forgotOpen} onClose={() => setForgotOpen(false)} fullWidth maxWidth="xs">
-                <DialogTitle sx={{ pr: 6 }}>
+                <DialogTitle sx={{ pr: 6, marginLeft: 3 }}>
+                    {/* Large red warning icon */}
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 80,
+                            height: 80,
+                            borderRadius: '50%',
+                            border: '4px solid darkred',
+                            mx: 'auto',
+                            mb: 2
+                        }}
+                        >
+                        <ReportProblem sx={{ fontSize: 50, color: 'darkred' }} />
+                    </Box>
                     <Typography
                         variant="h5"
                         component="div"
@@ -424,11 +479,12 @@ export function SignInOut(props) {
                         onClick={() => setForgotOpen(false)}
                         sx={{ position: 'absolute', right: 8, top: 8 }}
                     >
-                        <CloseIcon fontSize="large" />
+                        <Close fontSize="large" />
                     </IconButton>
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={1.25}>
+                        <><Check fontSize='large'/></>
                         {forgotData.activityName && (
                             <Typography variant="h5" textAlign="center" color="text.secondary">
                                 <Typography component="span" fontWeight="bold">
@@ -443,7 +499,7 @@ export function SignInOut(props) {
                             <Typography 
                                 variant="body1" textAlign="center" fontWeight="bold" sx={{ mt: 0, lineHeight: 1.2 }} >
                                 {forgotData.relativeDayText
-                                    ? `${forgotData.relativeDayText} ${tt('atWord', 'at')} ${forgotData.checkInTimeText}`
+                                    ? `${forgotData.relativeDayText} ${t('atWord', 'at')} ${forgotData.checkInTimeText}`
                                     : forgotData.checkInTimeText}
                             </Typography>
                         </>
@@ -462,7 +518,7 @@ export function SignInOut(props) {
             >
                 <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
                     <CircularProgress color="inherit" />
-                    <Typography variant="body2">Processing…</Typography>
+                    <Typography variant="body2">{ t('processing') }</Typography>
                 </Box>
             </Backdrop>
         </>
