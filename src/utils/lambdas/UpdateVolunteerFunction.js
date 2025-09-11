@@ -1,3 +1,5 @@
+// UpdateVolunteerFunction
+
 import {
   DynamoDBClient,
   UpdateItemCommand,
@@ -5,8 +7,6 @@ import {
 } from "@aws-sdk/client-dynamodb";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
-const TABLE_NAME = "SMUM_Volunteers";
-const TELEPHONE_EMAIL_INDEX = "telephone-email-index";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -18,6 +18,9 @@ const normTel = (v) => (v ?? "").replace(/\D/g, "");
 const normEmail = (v) => (v ?? "").trim().toLowerCase();
 
 export const handler = async (event) => {
+    const TABLE_NAME = event.stageVariables?.volunteersTable ?? "SMUM_Volunteers"
+    const TELEPHONE_EMAIL_INDEX = "telephone-email-index";    
+    
     try {
         const id = event.pathParameters?.id || event.queryStringParameters?.id;
         if (!id) {
@@ -105,7 +108,7 @@ export const handler = async (event) => {
 
         // marshal a friendly response (only known fields)
         const resp = {
-        id: Attributes?.VolunteerId?.S,
+        VolunteerId: Attributes?.VolunteerId?.S,
         // firstName:   Attributes?.firstName?.S,
         // lastName:    Attributes?.lastName?.S,
         // telephone:   Attributes?.telephone?.S,
