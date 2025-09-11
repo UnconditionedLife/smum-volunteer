@@ -1,3 +1,5 @@
+// PutVolunteerFunction
+
 import { 
     DynamoDBClient,
     QueryCommand, 
@@ -6,8 +8,6 @@ import {
 import * as crypto from "crypto";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
-const TABLE_NAME = "SMUM_Volunteers";
-const TELEPHONE_EMAIL_INDEX = "telephone-email-index";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +16,12 @@ const corsHeaders = {
 };
 
 export const handler = async (event) => {
+
+    console.log("STAGE VAR VOL TBL", event.stageVariables?.volunteersTable)
+
+    const TABLE_NAME = event.stageVariables?.volunteersTable ?? 'SMUM_Volunteers';
+    const TELEPHONE_EMAIL_INDEX = "telephone-email-index";
+
     // here to handle both test and live input
     let body = {};
     const id = crypto.randomUUID();
@@ -27,9 +33,9 @@ export const handler = async (event) => {
     }
 
     try {
-        const { firstName, lastName, telephone, email, programId } = body;
+        const { firstName, lastName, telephone, email, programId, time } = body;
 
-        if (!firstName || !lastName || !telephone || !email) {
+        if (!firstName || !lastName || !telephone || !email ) {
             return {
                 statusCode: 400,
                 headers: corsHeaders,
@@ -77,6 +83,7 @@ export const handler = async (event) => {
             ...(telephone ? { telephone: { S: telephone } } : {}),
             ...(email ? { email: { S: email } } : {}),
             ...(programId ? { ProgramId: { S: programId } } : {}),
+            ...(time ? { time: { S: time } } : {}),
             RegComplete: { BOOL: false }
         }
         };

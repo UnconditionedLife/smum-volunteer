@@ -1,11 +1,10 @@
+// GetShiftsByVolunteerFunction
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
 const docClient = DynamoDBDocumentClient.from(ddb);
-
-const TABLE_NAME = "SMUM_ShiftLogs";
-const GSI_NAME = "VolunteerId-TimestampIn-index";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -17,6 +16,8 @@ export const handler = async (event) => {
   const volunteerId = event.queryStringParameters?.volunteerId;
   const startDate = event.queryStringParameters?.startDate;
   const endDate = event.queryStringParameters?.endDate;
+  const TABLE_NAME = event.stageVariables?.shiftLogsTable ?? "SMUM_ShiftLogs";
+  const GSI_NAME = "VolunteerId-TimestampIn-index";
 
   if (!volunteerId) {
     return {

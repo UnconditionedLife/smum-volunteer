@@ -1,12 +1,10 @@
+// GetShiftsByProgramOrActivityFunction
+
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
 const docClient = DynamoDBDocumentClient.from(ddb);
-
-const TABLE_NAME = "SMUM_ShiftLogs";
-const GSI_PROGRAM = "ProgramId-Date-index";
-const GSI_ACTIVITY = "ActivityId-Date-index";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -15,6 +13,10 @@ const corsHeaders = {
 };
 
 export const handler = async (event) => {
+  const TABLE_NAME = event.stageVariables?.shiftLogsTable ?? "SMUM_ShiftLogs";
+  const GSI_PROGRAM = "ProgramId-Date-index";
+  const GSI_ACTIVITY = "ActivityId-Date-index";
+  
   const query = event.queryStringParameters || {};
   const { programId, activityId, date } = query;
 

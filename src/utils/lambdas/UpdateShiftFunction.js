@@ -1,9 +1,8 @@
+// UpdateShiftFunction
+
 import { DynamoDBClient, UpdateItemCommand } from "@aws-sdk/client-dynamodb";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
-
-const TABLE_NAME = "SMUM_ShiftLogs";
-const PK_NAME = "ShiftId";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,6 +22,9 @@ function parseBody(event) {
 }
 
 export const handler = async (event) => {
+  const TABLE_NAME = event.stageVariables?.shiftLogsTable ?? "SMUM_ShiftLogs";
+  const PK_NAME = "ShiftId";
+  
   try {
     // Preflight
     if (event?.httpMethod === "OPTIONS") {
