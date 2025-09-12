@@ -10,11 +10,9 @@ import { prepareActivitiesList } from '../utils/buildLists';
 import { Dialog, DialogTitle, DialogContent, IconButton, Stack } from '@mui/material';
 import { Close, Check, ReportProblem } from '@mui/icons-material';
 import duration from 'dayjs/plugin/duration';
-dayjs.extend(utc);
-dayjs.extend(timezone);
-dayjs.extend(duration);
-
-console.log("IN SIGNINOUT")
+// dayjs.extend(utc);
+// dayjs.extend(timezone);
+// dayjs.extend(duration);
 
 export function SignInOut(props) {
     const onUpdate = props.onUpdate;
@@ -32,10 +30,8 @@ export function SignInOut(props) {
     const [rawActivities, setRawActivities] = useState([]);
     var activities;
 
-    //   const [time, setTime] = useState(() => new Date().toISOString().slice(0, 16));
-    const [time, setTime] = useState(() =>
-        dayjs().tz('America/Los_Angeles').format('HH:mm')
-    );
+    // Current time
+    const [time, setTime] = useState('');
 
     // State
     const [busy, setBusy] = useState(false);
@@ -58,16 +54,23 @@ export function SignInOut(props) {
     });
     const closeConfirm = () => setConfirmOpen(false);
 
-    const canCheckoutToday = () => {
-        const todayPT = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
-        const dayCookie = getCookie("checkInDayPT");
-        if (dayCookie) return dayCookie === todayPT;
-        // Fallback for older check-ins that only set checkInAt
-        const checkInISO = getCookie("checkInAt");
-        if (!checkInISO) return true;
-        // Ensure UTC parse, then convert to PT before comparing
-        const startedPT = dayjs.utc(checkInISO).tz('America/Los_Angeles');
-        return dayjs().tz('America/Los_Angeles').isSame(startedPT, 'day');
+    const canCheckoutToday = (start) => {
+        if (start) {
+            const startDate = start.format('YYYY-MM-DD');
+            const result = dayjs().format('YYYY-MM-DD') == startDate;
+            return result
+        } else    
+            return true;
+
+        // const todayPT = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
+        // const dayCookie = getCookie("checkInDayPT");
+        // if (dayCookie) return dayCookie === todayPT;
+        // // Fallback for older check-ins that only set checkInAt
+        // const checkInISO = getCookie("checkInAt");
+        // if (!checkInISO) return true;
+        // // Ensure UTC parse, then convert to PT before comparing
+        // const startedPT = dayjs.utc(checkInISO).tz('America/Los_Angeles');
+        // return dayjs().tz('America/Los_Angeles').isSame(startedPT, 'day');
     };
 
     const formatDurationHM = (ms) => {
@@ -100,7 +103,7 @@ export function SignInOut(props) {
     }
 
     const formatRelativeDay = (startedPT) => {
-        const todayPT = dayjs().tz('America/Los_Angeles').startOf('day');
+        const todayPT = dayjs().startOf('day');
         const diff = todayPT.diff(startedPT.startOf('day'), 'day');
         if (diff === 0) return '';
         if (diff === 1) return t('yesterday', 'Yesterday');
@@ -109,19 +112,19 @@ export function SignInOut(props) {
     };
 
     // Build a PT datetime using the date from checkInDayPT (YYYY-MM-DD) and the time from checkInAt (ISO).
-    const buildStartedPT = (checkInISO, dayCookie) => {
-        const isoPT = checkInISO ? dayjs.utc(checkInISO).tz('America/Los_Angeles') : null;
-        if (dayCookie) {
-            const dayPT = dayjs.tz(dayCookie, 'America/Los_Angeles').startOf('day');
-            const timeHHmmss = isoPT ? isoPT.format('HH:mm:ss') : '00:00:00';
-            return dayjs.tz(`${dayPT.format('YYYY-MM-DD')}T${timeHHmmss}`, 'America/Los_Angeles');
-        }
-        return isoPT; // no day cookie → just use the ISO time converted to PT
-    };
+    // const buildStartedPT = (checkInISO, dayCookie) => {
+    //     const isoPT = checkInISO ? dayjs.utc(checkInISO).tz('America/Los_Angeles') : null;
+    //     if (dayCookie) {
+    //         const dayPT = dayjs.tz(dayCookie, 'America/Los_Angeles').startOf('day');
+    //         const timeHHmmss = isoPT ? isoPT.format('HH:mm:ss') : '00:00:00';
+    //         return dayjs.tz(`${dayPT.format('YYYY-MM-DD')}T${timeHHmmss}`, 'America/Los_Angeles');
+    //     }
+    //     return isoPT; // no day cookie → just use the ISO time converted to PT
+    // };
 
-    // Set time
+    // Set up clock display
     useEffect(() => {
-        const tick = () => setTime(dayjs().tz('America/Los_Angeles').format('h:mmA'));
+        const tick = () => setTime(dayjs().format('h:mm A'));
         tick(); // ensure it’s correct immediately
         const timer = setInterval(tick, 500);
         return () => clearInterval(timer);
@@ -138,58 +141,56 @@ export function SignInOut(props) {
 
     useEffect(() => {
         readCookies();
-        // setTime(new Date().toISOString().slice(0, 16));
-        setTime(dayjs().tz('America/Los_Angeles').format('HH:mm'));
     }, []);
 
     // On load: if last check-in wasn't today (PT), show warning and clear cookies
-    useEffect(() => {
-        if (rawActivities.length === 0) return; // wait until we have activities
+    // XXX Not needed - We do the same verification at check-out
+    // useEffect(() => {
+    //     if (rawActivities.length === 0) return; // wait until we have activities
 
-        const checkInISO = getCookie("checkInAt");
-        const hasCheckIn = !!checkInISO;
-        if (!hasCheckIn) return;
+    //     const checkInISO = getCookie("checkInAt");
+    //     const hasCheckIn = !!checkInISO;
+    //     if (!hasCheckIn) return;
 
-        const todayOK = canCheckoutToday();
-        if (todayOK) return;
+    //     const todayOK = canCheckoutToday();
+    //     if (todayOK) return;
 
-        setBusy(true);
-        // Build activity list locally to resolve name (no re-render dependency on "activities" var)
-        const localActs = prepareActivitiesList(rawActivities, lang, params.activityId);
-        const actName =
-            (localActs.find(a => a.ActivityId === activityId)?.[`ActivityName_${lang}`]) || '';
+    //     setBusy(true);
+    //     // Build activity list locally to resolve name (no re-render dependency on "activities" var)
+    //     const localActs = prepareActivitiesList(rawActivities, lang, params.activityId);
+    //     const actName =
+    //         (localActs.find(a => a.ActivityId === activityId)?.[`ActivityName_${lang}`]) || '';
 
-        // PT day cookie for relative label
-        const dayCookie = getCookie("checkInDayPT");
-        const startedPT = buildStartedPT(checkInISO, dayCookie);
+    //     // PT day cookie for relative label
+    //     const dayCookie = getCookie("checkInDayPT");
+    //     const startedPT = buildStartedPT(checkInISO, dayCookie);
 
-        setForgotData({
-            activityName: actName,
-            checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
-            relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
-        });
+    //     setForgotData({
+    //         activityName: actName,
+    //         checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
+    //         relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
+    //     });
 
-        // Clear stale cookies & reset state so a new shift can start
-        deleteCookie("volunteerActivity");
-        deleteCookie("checkInAt");
-        deleteCookie("checkInDayPT");
-        setCheckedIn(false);
+    //     // Clear stale cookies & reset state so a new shift can start
+    //     deleteCookie("volunteerActivity");
+    //     deleteCookie("checkInAt");
+    //     deleteCookie("checkInDayPT");
+    //     setCheckedIn(false);
 
-        setForgotOpen(true);
-        setBusy(false);
-    }, [rawActivities, lang, params.activityId]);
+    //     setForgotOpen(true);
+    //     setBusy(false);
+    // }, [rawActivities, lang, params.activityId]);
 
     const handleSignIn = async () => {
         setBusy(true);
         setCheckedIn(true);
         setCookie("volunteerActivity", activityId);
 
-        // Store precise check-in time (ISO UTC) for later duration calc
-        const now = dayjs().tz('America/Los_Angeles');
-        setCookie("checkInAt", now.toISOString());
-        setCookie("checkInDayPT", now.format('YYYY-MM-DD'));
+        // Store precise check-in time for later duration calc
+        const now = dayjs();
+        setCookie("checkInTime", now.unix());
 
-        logAction(volunteerId, "check-in", activityId, time)
+        logAction(volunteerId, "check-in", activityId)
             .then((result) => {
                 console.log("Log Action success:", result);
 
@@ -219,16 +220,14 @@ export function SignInOut(props) {
     const handleSignOut = async () => {
         // If the check-in was not today (PT), block checkout and show warning
         setBusy(true);
+        const startCookie = getCookie("checkInTime");
+        const started = startCookie ? dayjs.unix(startCookie) : null;
 
-        if (!canCheckoutToday()) {
-            const checkInISO = getCookie("checkInAt");
-            const dayCookie = getCookie("checkInDayPT");
-            const startedPT = buildStartedPT(checkInISO, dayCookie);
-
+        if (!canCheckoutToday(started)) {
             setForgotData({
                 activityName: getActivityName(activityId),
-                checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
-                relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
+                checkInTimeText: started ? started.format('h:mm a') : '',
+                relativeDayText: started ? formatRelativeDay(started) : ''
             });
 
             // console.log(
@@ -240,8 +239,7 @@ export function SignInOut(props) {
 
             // Reset so they can start a new shift
             deleteCookie("volunteerActivity");
-            deleteCookie("checkInAt");
-            deleteCookie("checkInDayPT");
+            deleteCookie("checkInTime");
             setCheckedIn(false);
 
             setForgotOpen(true);
@@ -253,17 +251,15 @@ export function SignInOut(props) {
         deleteCookie("volunteerActivity");
         setCheckedIn(false);
 
-        const now = dayjs().tz('America/Los_Angeles');
-        const checkInISO = getCookie("checkInAt");
+        const now = dayjs();
         let durationText = '';
-        if (checkInISO) {
-            const started = dayjs(checkInISO);
+        if (started) {
             const diffMs = now.diff(started);
             durationText = formatDurationHM(diffMs);
         }
-        deleteCookie("checkInAt");
+        deleteCookie("checkInTime");
 
-        logAction(volunteerId, "check-out", activityId, time)
+        logAction(volunteerId, "check-out", activityId)
             .then((result) => {
                 console.log("Log Action (checkout) success:", result);
       
@@ -296,7 +292,7 @@ export function SignInOut(props) {
     if (rawActivities.length > 0)
         activities = prepareActivitiesList(rawActivities, lang, params.activityId);
     else
-        return (<>ERROR: ACTIVITIES DID NO LOAD</>);
+        return (<>ERROR: ACTIVITIES DID NOT LOAD</>);
 
     return (
         <>

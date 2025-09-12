@@ -105,7 +105,8 @@ export function Register(props) {
         }
 
         const handleRegister = async () => {  
-            const now = dayjs().tz('America/Los_Angeles');
+            // XXX - Change to local time and date only?
+            const now = dayjs();
             const time = now.toISOString()
             registerVolunteer(firstName, lastName, telephone, email, programId, time)
                 .then(result => {
