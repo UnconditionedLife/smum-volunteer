@@ -18,8 +18,6 @@ dayjs.extend(timezone);
 export default function Home({ isShrunk, noCkeckin=false }) {
     const { lang } = useLang();
     const { t } = useLang();
-
-    console.log("NoCHECKIN", noCkeckin)
     
     // State
     const [knownName, setKnownName] = useState('');

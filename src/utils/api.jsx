@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 const host = window.location.hostname.toLowerCase();
 const stage = host === 'localhost' || host === '127.0.0.1' ? 'dev' : 'prod';
 const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/" + stage;
@@ -22,7 +24,9 @@ console.log("API", API_BASE)
     volunteer (currently only regComplete, meaning the volunteer has accepted all conditions
     of volunteering).
 */
-export async function registerVolunteer(firstName, lastName, telephone, email, programId, time) {    
+export async function registerVolunteer(firstName, lastName, telephone, email, programId) {    
+    // XXX Consider storing date only
+    const time = dayjs().format('YYYY-MM-DDTHH:mm:ss');
     telephone = telephone.replace(/\D/g, "");
 
     const response = await fetch(`${API_BASE}/volunteers/public`, {
@@ -126,7 +130,9 @@ export async function updateVolunteer(volunteerId, updates = {}) {
 export async function logAction(volunteerId, action, activityId) {
     console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId)
     
-    const timestamp = new Date().toISOString();
+    // XXX Make this change once the back end is updated to accept local timestamps
+    // const timestamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
+    const timestamp = dayjs().toISOString();
     const programId = 0; // XXX lambda function should get this from volunteer's current program // TODO GET PROGRAM FROM USER RECORD
     const response = await fetch(`${API_BASE}/shiftAction`, {
         method: "PUT",
