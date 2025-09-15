@@ -105,10 +105,7 @@ export function Register(props) {
         }
 
         const handleRegister = async () => {  
-            // XXX - Change to local time and date only?
-            const now = dayjs();
-            const time = now.toISOString()
-            registerVolunteer(firstName, lastName, telephone, email, programId, time)
+            registerVolunteer(firstName, lastName, telephone, email, programId)
                 .then(result => {
                     // console.log('register-result', result)
                     setVolunteerId(result.id);
