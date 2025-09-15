@@ -6,6 +6,7 @@ const API_BASE = "https://hjfje6icwa.execute-api.us-west-2.amazonaws.com/" + sta
 
 console.log("API", API_BASE)
 
+// XXX what is this for?
 "50c0c5a4-60ca-42f3-8253-bf56e9a79299"
 
 /*
@@ -15,6 +16,7 @@ console.log("API", API_BASE)
         telephone
         email
         programId
+        time (local time in current timezone)
     Out
         id
         regComplete
@@ -119,6 +121,7 @@ export async function updateVolunteer(volunteerId, updates = {}) {
     In
         volunteerId
         action - "sign-in", "sign-out"
+        timestamp (local time in current timezone)
         activityId
     Out
         None
@@ -130,9 +133,7 @@ export async function updateVolunteer(volunteerId, updates = {}) {
 export async function logAction(volunteerId, action, activityId) {
     console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId)
     
-    // XXX Make this change once the back end is updated to accept local timestamps
-    // const timestamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
-    const timestamp = dayjs().toISOString();
+    const timestamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
     const programId = 0; // XXX lambda function should get this from volunteer's current program // TODO GET PROGRAM FROM USER RECORD
     const response = await fetch(`${API_BASE}/shiftAction`, {
         method: "PUT",
@@ -144,7 +145,7 @@ export async function logAction(volunteerId, action, activityId) {
             action,
             timestamp,
             activityId,
-            programId, 
+            programId, // XXX remove
         })
     });
 
