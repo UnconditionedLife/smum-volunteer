@@ -19,6 +19,8 @@ const translations = {
         rememberToCheckout: "Don’t forget to check out later today.",
         checkedIn: "You're checked in.",
         checkedOut: "You're checked out.",
+        errPhone: "Enter a US phone number with area code",
+        errEmail: "Enter a valid email address",
         
         checkoutNotAllowedTitle: "Forgot to check out",
         checkoutNotAllowedBody: "Please speak to an administrator to correct your hours.",
@@ -90,6 +92,8 @@ const translations = {
         rememberToCheckout: "No olvides registrar tu salida más tarde hoy.",
         checkedIn: "Has registrado tu entrada.",
         checkedOut: "Has registrado tu salida.",
+        errPhone: "Ingrese un número de teléfono de EE. UU. con código de área",
+        errEmail: "Ingrese una dirección de correo electrónico válida",
 
         checkoutNotAllowedTitle: "Olvidaste registrar tu salida",
         checkoutNotAllowedBody: "Por favor, habla con un administrador para corregir tus horas.",
