@@ -43,6 +43,10 @@ export const handler = async (event) => {
             };
         }
 
+        // Normalize Tel and Email
+        const emailNorm = String(email).trim().toLowerCase();
+        const telephoneNorm = String(telephone).replace(/\D+/g, "");
+
         // Step 1: Check if volunteer exists using the telephone+email GSI
         const queryParams = {
         TableName: TABLE_NAME,
@@ -53,8 +57,8 @@ export const handler = async (event) => {
             "#e": "email"
         },
         ExpressionAttributeValues: {
-            ":tel":   { S: telephone },
-            ":email": { S: email }
+            ":tel":   { S: telephoneNorm },
+            ":email": { S: emailNorm }
         },
         Limit: 1
         };
@@ -80,8 +84,8 @@ export const handler = async (event) => {
             VolunteerId: { S: id },
             firstName: { S: firstName },
             lastName: { S: lastName },
-            ...(telephone ? { telephone: { S: telephone } } : {}),
-            ...(email ? { email: { S: email } } : {}),
+            telephone: { S: telephoneNorm },
+            email: { S: emailNorm },
             ...(programId ? { ProgramId: { S: programId } } : {}),
             ...(time ? { time: { S: time } } : {}),
             RegComplete: { BOOL: false }
