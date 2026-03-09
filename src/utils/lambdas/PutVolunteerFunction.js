@@ -1,18 +1,18 @@
 // PutVolunteerFunction
 
-import { 
+import {
     DynamoDBClient,
-    QueryCommand, 
-    PutItemCommand 
+    QueryCommand,
+    PutItemCommand
 } from "@aws-sdk/client-dynamodb";
 import * as crypto from "crypto";
 
 const ddb = new DynamoDBClient({ region: "us-west-2" });
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "*",
-  "Access-Control-Allow-Methods": "OPTIONS,PUT"
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,PUT"
 };
 
 export const handler = async (event) => {
@@ -33,9 +33,9 @@ export const handler = async (event) => {
     }
 
     try {
-        const { firstName, lastName, telephone, email, programId, time } = body;
+        var { firstName, lastName, telephone, email, programId, time } = body;
 
-        if (!firstName || !lastName || !telephone || !email ) {
+        if (!firstName || !lastName) {
             return {
                 statusCode: 400,
                 headers: corsHeaders,
@@ -43,56 +43,61 @@ export const handler = async (event) => {
             };
         }
 
+        if (!telephone)
+            telephone = "*EMPTY*"
+
+        if (!email)
+            email = "*EMPTY*"
+
         // Normalize Tel and Email
         const emailNorm = String(email).trim().toLowerCase();
         const telephoneNorm = String(telephone).replace(/\D+/g, "");
 
         // Step 1: Check if volunteer exists using the telephone+email GSI
         const queryParams = {
-        TableName: TABLE_NAME,
-        IndexName: TELEPHONE_EMAIL_INDEX,
-        KeyConditionExpression: "#t = :tel AND #e = :email",
-        ExpressionAttributeNames: {
-            "#t": "telephone",
-            "#e": "email"
-        },
-        ExpressionAttributeValues: {
-            ":tel":   { S: telephoneNorm },
-            ":email": { S: emailNorm }
-        },
-        Limit: 1
+            TableName: TABLE_NAME,
+            IndexName: TELEPHONE_EMAIL_INDEX,
+            KeyConditionExpression: "#t = :tel AND #e = :email",
+            ExpressionAttributeNames: {
+                "#t": "telephone",
+                "#e": "email"
+            },
+            ExpressionAttributeValues: {
+                ":tel": { S: telephoneNorm },
+                ":email": { S: emailNorm }
+            },
+            Limit: 1
         };
 
         const queryResult = await ddb.send(new QueryCommand(queryParams));
 
         if (queryResult.Count > 0) {
-        const existing = queryResult.Items[0];
-        return {
-            statusCode: 200,
-            headers: corsHeaders,
-            body: JSON.stringify({
-            id: existing.VolunteerId.S,
-            regComplete: existing.RegComplete?.BOOL ?? false,
-            }),
-        };
+            const existing = queryResult.Items[0];
+            return {
+                statusCode: 200,
+                headers: corsHeaders,
+                body: JSON.stringify({
+                    id: existing.VolunteerId.S,
+                    regComplete: existing.RegComplete?.BOOL ?? false,
+                }),
+            };
         }
 
         // Step 2: Save new volunteer
         const params = {
-        TableName: TABLE_NAME,
-        Item: {
-            VolunteerId: { S: id },
-            firstName: { S: firstName },
-            lastName: { S: lastName },
-            telephone: { S: telephoneNorm },
-            email: { S: emailNorm },
-            ...(programId ? { ProgramId: { S: programId } } : {}),
-            ...(time ? { time: { S: time } } : {}),
-            RegComplete: { BOOL: false }
+            TableName: TABLE_NAME,
+            Item: {
+                VolunteerId: { S: id },
+                firstName: { S: firstName },
+                lastName: { S: lastName },
+                telephone: { S: telephoneNorm },
+                email: { S: emailNorm },
+                ...(programId ? { ProgramId: { S: programId } } : {}),
+                ...(time ? { time: { S: time } } : {}),
+                RegComplete: { BOOL: false }
+            }
         }
-        };
 
-        console.log("DynamoDB PutItem params:", JSON.stringify(params, null, 2));
         await ddb.send(new PutItemCommand(params));
 
         return {
@@ -107,5 +112,5 @@ export const handler = async (event) => {
             headers: corsHeaders,
             body: JSON.stringify({ message: "Server error." }),
         };
-  }
+    }
 };

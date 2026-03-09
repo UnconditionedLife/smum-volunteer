@@ -27,7 +27,8 @@ export const handler = async (event) => {
       Key: { VolunteerId: id }
     }));
 
-    if (!result.Item) {
+    // Treat soft-deleted volunteers as not found
+    if (!result.Item || result.Item.isDeleted === true) {
       return {
         statusCode: 404,
         headers: {

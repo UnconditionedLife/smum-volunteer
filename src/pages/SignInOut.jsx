@@ -21,9 +21,9 @@ export function SignInOut(props) {
 
     // URL Values
     const params = useParams();
-    
+
     // Volunteer info
-    const [volunteerId, setVolunteerId]= useState('');
+    const [volunteerId, setVolunteerId] = useState('');
 
     // Activity & Time
     const [activityId, setActivity] = useState(0);
@@ -59,7 +59,7 @@ export function SignInOut(props) {
             const startDate = start.format('YYYY-MM-DD');
             const result = dayjs().format('YYYY-MM-DD') == startDate;
             return result
-        } else    
+        } else
             return true;
 
         // const todayPT = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
@@ -84,6 +84,14 @@ export function SignInOut(props) {
         (activities?.find(a => a.ActivityId === id)?.[`ActivityName_${lang}`]) || '';
 
     function readCookies() {
+        const startCookie = getCookie("checkInTime");
+        const started = startCookie ? dayjs.unix(startCookie) : null;
+
+        if (started && !canCheckoutToday(started)) {
+            deleteCookie("volunteerActivity");
+            deleteCookie("checkInTime");
+        }
+
         const activityCookie = getCookie("volunteerActivity");
         if (activityCookie) {
             setCheckedIn(true);
@@ -94,7 +102,7 @@ export function SignInOut(props) {
         }
 
         const nameCookie = getCookie("volunteerName");
-        if (nameCookie) 
+        if (nameCookie)
             setKnownName(nameCookie);
 
         const idCookie = getCookie("volunteerId");
@@ -133,7 +141,7 @@ export function SignInOut(props) {
     // Get & Set Activities List
     useEffect(() => {
         getActivities()
-            .then( activitiesList => {
+            .then(activitiesList => {
                 setRawActivities(activitiesList)
             })
             .catch(console.error);
@@ -204,7 +212,7 @@ export function SignInOut(props) {
                 setConfirmOpen(true);
             })
             .catch((err) => {
-      
+
                 console.error("Log Action failed:", err);
                 setCheckedIn(false);
 
@@ -214,7 +222,7 @@ export function SignInOut(props) {
                 // Clear busy spinner
                 setBusy(false);
             });
-            
+
     };
 
     const handleSignOut = async () => {
@@ -262,7 +270,7 @@ export function SignInOut(props) {
         logAction(volunteerId, "check-out", activityId)
             .then((result) => {
                 console.log("Log Action (checkout) success:", result);
-      
+
                 setConfirmData({
                     type: "check-out",
                     timeText: now.format("h:mm a"),
@@ -270,7 +278,7 @@ export function SignInOut(props) {
                     activityName: getActivityName(activityId)
                 });
                 setConfirmOpen(true);
-            })    
+            })
             .catch((err) => {
                 console.error("Log Action (checkout) failed:", err);
                 // TODO Optional: surface a snackbar/dialog here
@@ -278,7 +286,7 @@ export function SignInOut(props) {
             })
             .finally(() => {
                 setBusy(false);
-        });
+            });
     };
 
     const handleNewUser = () => {
@@ -299,38 +307,38 @@ export function SignInOut(props) {
             {/* Volunteer Info Section */}
             <Box component="section">
                 <Box mb={8}>
-                    <Typography variant="h6" color="textPrimary">{ t('welcome') }, {knownName}!</Typography>
+                    <Typography variant="h6" color="textPrimary">{t('welcome')}, {knownName}!</Typography>
                     <Typography variant="subtitle1" fontSize="14px" color="primary">{checkedIn ? t('checkedIn') : t('checkedOut')}</Typography>
                     {/* // temporary edit to see if it works to keep it always visible */}
-                    {/* {!checkedIn && ( */} 
-                        <Button variant="text" color="secondary" onClick={handleNewUser} sx={{ mt: 1 }}>
-                            { t('logInAsDiff') }
-                        </Button>
+                    {/* {!checkedIn && ( */}
+                    <Button variant="text" color="secondary" onClick={handleNewUser} sx={{ mt: 1 }}>
+                        {t('logInAsDiff')}
+                    </Button>
                     {/* )} */}
                 </Box>
             </Box>
 
-            {/* Activity & Time Section */}           
+            {/* Activity & Time Section */}
             <Box component="section" mt={4} mb={2}>
-                <Typography fontSize="20px" color='#6FADAF'>{ t('activityTimeUpper') }</Typography>
+                <Typography fontSize="20px" color='#6FADAF'>{t('activityTimeUpper')}</Typography>
                 <FormControl fullWidth margin="normal">
-                    <InputLabel id="activity-label">{ t('activity') }</InputLabel>
+                    <InputLabel id="activity-label">{t('activity')}</InputLabel>
                     <Select
                         labelId="activity-label"
-                        value={ activityId }
-                        label={ t('activity') }
+                        value={activityId}
+                        label={t('activity')}
                         onChange={e => setActivity(e.target.value)}
                         disabled={checkedIn}
-                        margin="dense" 
+                        margin="dense"
                         size="small"
-                        sx={{ 
+                        sx={{
                             mb: .5,
                             backgroundColor: 'rgba(255, 255, 255, 0.44)',
-                            borderRadius: '4px' 
+                            borderRadius: '4px'
                         }}
-                        >
+                    >
                         {activities.map(act => (
-                            <MenuItem key={act.ActivityId} value={act.ActivityId}>{ act[`ActivityName_${lang}`] }</MenuItem>
+                            <MenuItem key={act.ActivityId} value={act.ActivityId}>{act[`ActivityName_${lang}`]}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
@@ -345,53 +353,53 @@ export function SignInOut(props) {
                         p: 1,
                         color: '#000'
                     }}
-                    >
-                    { time }
+                >
+                    {time}
                 </Typography>
             </Box>
 
             {/* Confirmation Section */}
             <Box component="section">
                 {checkedIn ? (
-                    <Button 
-                        variant="contained" 
-                        color="secondary" 
+                    <Button
+                        variant="contained"
+                        color="secondary"
                         disabled={busy || activityId == 0}
-                        onClick={handleSignOut} 
+                        onClick={handleSignOut}
                         fullWidth
                     >
-                        { t('signOut') }
+                        {t('signOut')}
                     </Button>
                 ) : (
-                    <Button 
-                        variant="contained" 
+                    <Button
+                        variant="contained"
                         color="primary"
                         disabled={busy || activityId == 0}
-                        onClick={handleSignIn} 
+                        onClick={handleSignIn}
                         fullWidth
                     >
-                        { t('signIn') }
+                        {t('signIn')}
                     </Button>
                 )}
             </Box>
-            
+
             {/* Confirmation Pop-up */}
             <Dialog open={confirmOpen} onClose={closeConfirm} fullWidth maxWidth="xs">
                 <DialogTitle sx={{ pr: 6, marginLeft: 3 }}>
                     {/* Large checkmark in a circle */}
                     <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: 50,
-                        height: 50,
-                        borderRadius: '50%',
-                        border: '4px solid darkgreen',
-                        mx: 'auto',
-                        mb: -2,
-                        mt: 3
-                    }}
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: 50,
+                            height: 50,
+                            borderRadius: '50%',
+                            border: '4px solid darkgreen',
+                            mx: 'auto',
+                            mb: -2,
+                            mt: 3
+                        }}
                     >
                         <Check sx={{ fontSize: 40, color: 'darkgreen' }} />
                     </Box>
@@ -433,9 +441,9 @@ export function SignInOut(props) {
                             </Typography>
                         )}
                         {confirmData.type === 'check-in' && (
-                        <Typography variant="body2" color="secondary" textAlign="center">
-                            {t('rememberToCheckout')}
-                        </Typography>
+                            <Typography variant="body2" color="secondary" textAlign="center">
+                                {t('rememberToCheckout')}
+                            </Typography>
                         )}
                     </Stack>
                 </DialogContent>
@@ -457,7 +465,7 @@ export function SignInOut(props) {
                             mx: 'auto',
                             mb: 2
                         }}
-                        >
+                    >
                         <ReportProblem sx={{ fontSize: 50, color: 'darkred' }} />
                     </Box>
                     <Typography
@@ -468,7 +476,7 @@ export function SignInOut(props) {
                         color="primary"
                         marginTop={4}
                     >
-                    {t('checkoutNotAllowedTitle') /* e.g., "Check-out not available" */}
+                        {t('checkoutNotAllowedTitle') /* e.g., "Check-out not available" */}
                     </Typography>
                     <IconButton
                         aria-label="close"
@@ -480,7 +488,7 @@ export function SignInOut(props) {
                 </DialogTitle>
                 <DialogContent>
                     <Stack spacing={1.25}>
-                        <><Check fontSize='large'/></>
+                        <><Check fontSize='large' /></>
                         {forgotData.activityName && (
                             <Typography variant="h5" textAlign="center" color="text.secondary">
                                 <Typography component="span" fontWeight="bold">
@@ -492,7 +500,7 @@ export function SignInOut(props) {
                             <Typography variant="body1" textAlign="center" lineHeight='20px' sx={{ mb: 0.25, lineHeight: 1.2 }} >
                                 {t('lastCheckInAt')}
                             </Typography>
-                            <Typography 
+                            <Typography
                                 variant="body1" textAlign="center" fontWeight="bold" sx={{ mt: 0, lineHeight: 1.2 }} >
                                 {forgotData.relativeDayText
                                     ? `${forgotData.relativeDayText} ${t('atWord', 'at')} ${forgotData.checkInTimeText}`
@@ -514,7 +522,7 @@ export function SignInOut(props) {
             >
                 <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
                     <CircularProgress color="inherit" />
-                    <Typography variant="body2">{ t('processing') }</Typography>
+                    <Typography variant="body2">{t('processing')}</Typography>
                 </Box>
             </Backdrop>
         </>
