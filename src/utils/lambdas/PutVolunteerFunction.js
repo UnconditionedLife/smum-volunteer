@@ -3,7 +3,8 @@
 import {
     DynamoDBClient,
     QueryCommand,
-    PutItemCommand
+    PutItemCommand,
+    GetItemCommand
 } from "@aws-sdk/client-dynamodb";
 import * as crypto from "crypto";
 
@@ -72,13 +73,32 @@ export const handler = async (event) => {
         const queryResult = await ddb.send(new QueryCommand(queryParams));
 
         if (queryResult.Count > 0) {
-            const existing = queryResult.Items[0];
+            let existing = queryResult.Items[0];
+            let returnedId = existing.VolunteerId.S;
+            let regComplete = existing.RegComplete?.BOOL ?? false;
+
+            if (existing.isDeleted?.BOOL === true && existing.RedirectTo?.S) {
+                const redirectedCheck = await ddb.send(
+                    new GetItemCommand({
+                        TableName: TABLE_NAME,
+                        Key: {
+                            VolunteerId: { S: existing.RedirectTo.S }
+                        }
+                    })
+                );
+                if (redirectedCheck.Item && !redirectedCheck.Item.isDeleted?.BOOL) {
+                    existing = redirectedCheck.Item;
+                    returnedId = existing.VolunteerId.S;
+                    regComplete = existing.RegComplete?.BOOL ?? false;
+                }
+            }
+
             return {
                 statusCode: 200,
                 headers: corsHeaders,
                 body: JSON.stringify({
-                    id: existing.VolunteerId.S,
-                    regComplete: existing.RegComplete?.BOOL ?? false,
+                    id: returnedId,
+                    regComplete,
                 }),
             };
         }

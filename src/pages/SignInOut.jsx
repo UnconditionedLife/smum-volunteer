@@ -202,6 +202,15 @@ export function SignInOut(props) {
             .then((result) => {
                 console.log("Log Action success:", result);
 
+                if (result.redirectVolunteerId) {
+                    setVolunteerId(result.redirectVolunteerId);
+                    setCookie("volunteerId", result.redirectVolunteerId);
+                }
+                if (result.redirectName) {
+                    setKnownName(result.redirectName);
+                    setCookie("volunteerName", result.redirectName);
+                }
+
                 setConfirmData({
                     type: 'check-in',
                     timeText: now.format('h:mm a'),
@@ -270,6 +279,15 @@ export function SignInOut(props) {
         logAction(volunteerId, "check-out", activityId)
             .then((result) => {
                 console.log("Log Action (checkout) success:", result);
+
+                if (result.redirectVolunteerId) {
+                    setVolunteerId(result.redirectVolunteerId);
+                    setCookie("volunteerId", result.redirectVolunteerId);
+                }
+                if (result.redirectName) {
+                    setKnownName(result.redirectName);
+                    setCookie("volunteerName", result.redirectName);
+                }
 
                 setConfirmData({
                     type: "check-out",

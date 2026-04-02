@@ -25,7 +25,7 @@ export const handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body);
-    const {
+    let {
       volunteerId,
       action, // "check-in" or "check-out"
       timestamp,
@@ -51,7 +51,9 @@ export const handler = async (event) => {
       })
     );
 
-    if (!volunteerCheck.Item) {
+    let currentVolunteerItem = volunteerCheck.Item;
+
+    if (!currentVolunteerItem) {
       return {
         statusCode: 400,
         headers: corsHeaders,
@@ -59,8 +61,35 @@ export const handler = async (event) => {
       };
     }
 
+    let redirectedId = null;
+    let redirectedName = null;
+
+    if (currentVolunteerItem.isDeleted?.BOOL === true && currentVolunteerItem.RedirectTo?.S) {
+      const redirectedCheck = await ddb.send(
+        new GetItemCommand({
+          TableName: VOLUNTEERS_TABLE,
+          Key: {
+            VolunteerId: { S: currentVolunteerItem.RedirectTo.S }
+          }
+        })
+      );
+      
+      if (redirectedCheck.Item && !redirectedCheck.Item.isDeleted?.BOOL) {
+        currentVolunteerItem = redirectedCheck.Item;
+        volunteerId = currentVolunteerItem.VolunteerId.S;
+        redirectedId = volunteerId;
+        redirectedName = currentVolunteerItem.firstName?.S || "Volunteer";
+      } else {
+        return {
+          statusCode: 400,
+          headers: corsHeaders,
+          body: JSON.stringify({ message: "Redirect target not found or is deleted", id: volunteerId })
+        };
+      }
+    }
+
     const programIdFromVolunteer = 
-      volunteerCheck.Item.ProgramId?.S?.trim() || "0";  // default to "0"
+      currentVolunteerItem.ProgramId?.S?.trim() || "0";  // default to "0"
 
     if (action === "check-in") {
       // ✅ Insert new shift record
@@ -83,7 +112,12 @@ export const handler = async (event) => {
       return {
         statusCode: 201,
         headers: corsHeaders,
-        body: JSON.stringify({ message: "Check-in recorded.", shiftId, build: BUILD })
+        body: JSON.stringify({ 
+            message: "Check-in recorded.", 
+            shiftId, 
+            build: BUILD,
+            ...(redirectedId ? { redirectVolunteerId: redirectedId, redirectName: redirectedName } : {})
+        })
       };
 
     } else if (action === "check-out") {
@@ -127,7 +161,12 @@ export const handler = async (event) => {
       return {
         statusCode: 200,
         headers: corsHeaders,
-        body: JSON.stringify({ message: "Check-out recorded.", shiftId: openShift.ShiftId.S, build: BUILD })
+        body: JSON.stringify({ 
+            message: "Check-out recorded.", 
+            shiftId: openShift.ShiftId.S, 
+            build: BUILD,
+            ...(redirectedId ? { redirectVolunteerId: redirectedId, redirectName: redirectedName } : {})
+        })
       };
     } else {
       return {

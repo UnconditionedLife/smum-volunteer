@@ -36,7 +36,7 @@ export const handler = async (event) => {
         }
 
         // collect updatable fields
-        let { firstName, lastName, telephone, email, programId, regComplete, isDeleted } = body;
+        let { firstName, lastName, telephone, email, programId, regComplete, isDeleted, RedirectTo } = body;
 
         // normalize if provided
         if (telephone != null) telephone = normTel(telephone);
@@ -90,6 +90,7 @@ export const handler = async (event) => {
         if (programId != null) add("ProgramId", { S: String(programId) });
         if (typeof regComplete === "boolean") add("RegComplete", { BOOL: regComplete });
         if (typeof isDeleted === "boolean") add("isDeleted", { BOOL: isDeleted });
+        if (RedirectTo != null) add("RedirectTo", { S: String(RedirectTo) });
 
         if (sets.length === 0) {
             return {
