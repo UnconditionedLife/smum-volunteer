@@ -61,16 +61,6 @@ export function SignInOut(props) {
             return result
         } else
             return true;
-
-        // const todayPT = dayjs().tz('America/Los_Angeles').format('YYYY-MM-DD');
-        // const dayCookie = getCookie("checkInDayPT");
-        // if (dayCookie) return dayCookie === todayPT;
-        // // Fallback for older check-ins that only set checkInAt
-        // const checkInISO = getCookie("checkInAt");
-        // if (!checkInISO) return true;
-        // // Ensure UTC parse, then convert to PT before comparing
-        // const startedPT = dayjs.utc(checkInISO).tz('America/Los_Angeles');
-        // return dayjs().tz('America/Los_Angeles').isSame(startedPT, 'day');
     };
 
     const formatDurationHM = (ms) => {
@@ -119,17 +109,6 @@ export function SignInOut(props) {
         return `${diff} ${t('daysAgo', 'days ago')}`;
     };
 
-    // Build a PT datetime using the date from checkInDayPT (YYYY-MM-DD) and the time from checkInAt (ISO).
-    // const buildStartedPT = (checkInISO, dayCookie) => {
-    //     const isoPT = checkInISO ? dayjs.utc(checkInISO).tz('America/Los_Angeles') : null;
-    //     if (dayCookie) {
-    //         const dayPT = dayjs.tz(dayCookie, 'America/Los_Angeles').startOf('day');
-    //         const timeHHmmss = isoPT ? isoPT.format('HH:mm:ss') : '00:00:00';
-    //         return dayjs.tz(`${dayPT.format('YYYY-MM-DD')}T${timeHHmmss}`, 'America/Los_Angeles');
-    //     }
-    //     return isoPT; // no day cookie → just use the ISO time converted to PT
-    // };
-
     // Set up clock display
     useEffect(() => {
         const tick = () => setTime(dayjs().format('h:mm A'));
@@ -150,44 +129,6 @@ export function SignInOut(props) {
     useEffect(() => {
         readCookies();
     }, []);
-
-    // On load: if last check-in wasn't today (PT), show warning and clear cookies
-    // XXX Not needed - We do the same verification at check-out
-    // useEffect(() => {
-    //     if (rawActivities.length === 0) return; // wait until we have activities
-
-    //     const checkInISO = getCookie("checkInAt");
-    //     const hasCheckIn = !!checkInISO;
-    //     if (!hasCheckIn) return;
-
-    //     const todayOK = canCheckoutToday();
-    //     if (todayOK) return;
-
-    //     setBusy(true);
-    //     // Build activity list locally to resolve name (no re-render dependency on "activities" var)
-    //     const localActs = prepareActivitiesList(rawActivities, lang, params.activityId);
-    //     const actName =
-    //         (localActs.find(a => a.ActivityId === activityId)?.[`ActivityName_${lang}`]) || '';
-
-    //     // PT day cookie for relative label
-    //     const dayCookie = getCookie("checkInDayPT");
-    //     const startedPT = buildStartedPT(checkInISO, dayCookie);
-
-    //     setForgotData({
-    //         activityName: actName,
-    //         checkInTimeText: startedPT ? startedPT.format('h:mm a') : '',
-    //         relativeDayText: startedPT ? formatRelativeDay(startedPT) : ''
-    //     });
-
-    //     // Clear stale cookies & reset state so a new shift can start
-    //     deleteCookie("volunteerActivity");
-    //     deleteCookie("checkInAt");
-    //     deleteCookie("checkInDayPT");
-    //     setCheckedIn(false);
-
-    //     setForgotOpen(true);
-    //     setBusy(false);
-    // }, [rawActivities, lang, params.activityId]);
 
     const handleSignIn = async () => {
         setBusy(true);
@@ -246,13 +187,6 @@ export function SignInOut(props) {
                 checkInTimeText: started ? started.format('h:mm a') : '',
                 relativeDayText: started ? formatRelativeDay(started) : ''
             });
-
-            // console.log(
-            //     '[ForgotDialog] startedPT=', 
-            //     startedPT && startedPT.format(), 
-            //     'relative=', 
-            //     startedPT && formatRelativeDay(startedPT)
-            // );
 
             // Reset so they can start a new shift
             deleteCookie("volunteerActivity");
@@ -327,8 +261,6 @@ export function SignInOut(props) {
                 <Box mb={8}>
                     <Typography variant="h6" color="textPrimary">{t('welcome')}, {knownName}!</Typography>
                     <Typography variant="subtitle1" fontSize="14px" color="primary">{checkedIn ? t('checkedIn') : t('checkedOut')}</Typography>
-                    {/* // temporary edit to see if it works to keep it always visible */}
-                    {/* {!checkedIn && ( */}
                     <Button variant="text" color="secondary" onClick={handleNewUser} sx={{ mt: 1 }}>
                         {t('logInAsDiff')}
                     </Button>
@@ -378,27 +310,25 @@ export function SignInOut(props) {
 
             {/* Confirmation Section */}
             <Box component="section">
-                {checkedIn ? (
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        disabled={busy || activityId == 0}
-                        onClick={handleSignOut}
-                        fullWidth
-                    >
-                        {t('signOut')}
-                    </Button>
-                ) : (
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        disabled={busy || activityId == 0}
-                        onClick={handleSignIn}
-                        fullWidth
-                    >
-                        {t('signIn')}
-                    </Button>
-                )}
+                <Button
+                    sx={{ m:1 }}
+                    variant="contained"
+                    color="primary"
+                    disabled={checkedIn || busy || activityId == 0}
+                    onClick={handleSignIn}
+                >
+                    {t('signIn')}
+                </Button>
+                <Button
+                    sx={{ m:1 }}
+                    variant="contained"
+                    color="secondary"
+                    disabled={!checkedIn || busy || activityId == 0}
+                    onClick={handleSignOut}
+                >
+                    {t('signOut')}
+                </Button>
+
             </Box>
 
             {/* Confirmation Pop-up */}
