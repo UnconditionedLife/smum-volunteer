@@ -134,7 +134,6 @@ export async function logAction(volunteerId, action, activityId) {
     console.log("volunteerId:", volunteerId, "action:", action, "activityId:", activityId)
     
     const timestamp = dayjs().format('YYYY-MM-DDTHH:mm:ss');
-    const programId = 0; // XXX lambda function should get this from volunteer's current program // TODO GET PROGRAM FROM USER RECORD
     const response = await fetch(`${API_BASE}/shiftAction`, {
         method: "PUT",
         headers: {
@@ -144,13 +143,17 @@ export async function logAction(volunteerId, action, activityId) {
             volunteerId,
             action,
             timestamp,
-            activityId,
-            programId, // XXX remove
+            activityId
         })
     });
 
   const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Failed to log action");
+  if (!response.ok) {
+      const error = new Error(data.message || "Failed to log action");
+      error.code = data.code;
+      if (data.redirectVolunteerId) error.redirectVolunteerId = data.redirectVolunteerId;
+      throw error;
+  }
   return data;
 }
 

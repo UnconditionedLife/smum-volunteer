@@ -7,7 +7,7 @@ import timezone from 'dayjs/plugin/timezone';
 import { useLang } from '../utils/languageContext';
 import { getCookie, setCookie, deleteCookie, getActivities, logAction } from '../utils/api';
 import { prepareActivitiesList } from '../utils/buildLists';
-import { Dialog, DialogTitle, DialogContent, IconButton, Stack } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, IconButton, Stack, Snackbar, Alert } from '@mui/material';
 import { Close, Check, ReportProblem } from '@mui/icons-material';
 import duration from 'dayjs/plugin/duration';
 // dayjs.extend(utc);
@@ -53,6 +53,13 @@ export function SignInOut(props) {
         relativeDayText: ''     // e.g., "Yesterday" | "Two days ago" | "3 days ago"
     });
     const closeConfirm = () => setConfirmOpen(false);
+
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
+    const showSnackbar = (message, severity = 'error') => setSnackbar({ open: true, message, severity });
+    const closeSnackbar = (event, reason) => {
+        if (reason === 'clickaway') return;
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
 
     const canCheckoutToday = (start) => {
         if (start) {
@@ -165,8 +172,15 @@ export function SignInOut(props) {
 
                 console.error("Log Action failed:", err);
                 setCheckedIn(false);
-
-                // TODO: set an error state to show feedback in the UI
+                
+                if (err.code === "VOLUNTEER_DELETED" || err.code === "VOLUNTEER_REDIRECT_BROKEN" || err.code === "UNKNOWN_VOLUNTEER") {
+                    showSnackbar(t('volunteerDeletedAccount', 'Your volunteer profile was not found. Please register again.'), 'error');
+                    deleteCookie("checkInTime");
+                    deleteCookie("volunteerActivity");
+                    handleNewUser();
+                } else {
+                    showSnackbar(err.message || "An error occurred during check-in.", 'error');
+                }
             })
             .finally(() => {
                 // Clear busy spinner
@@ -233,8 +247,12 @@ export function SignInOut(props) {
             })
             .catch((err) => {
                 console.error("Log Action (checkout) failed:", err);
-                // TODO Optional: surface a snackbar/dialog here
-                // setError("We couldn't record your check-out. Please try again.");
+                if (err.code === "VOLUNTEER_DELETED" || err.code === "VOLUNTEER_REDIRECT_BROKEN" || err.code === "UNKNOWN_VOLUNTEER") {
+                    showSnackbar(t('volunteerDeletedAccount', 'Your volunteer profile was not found. Please register again.'), 'error');
+                    handleNewUser();
+                } else if (err.code !== "NO_OPEN_SHIFT") {
+                    showSnackbar(err.message || "An error occurred during check-out.", 'error');
+                }
             })
             .finally(() => {
                 setBusy(false);
@@ -473,6 +491,18 @@ export function SignInOut(props) {
                     <Typography variant="body2">{t('processing')}</Typography>
                 </Box>
             </Backdrop>
+
+            {/* Application Snackbar */}
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={6000}
+                onClose={closeSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={closeSnackbar} severity={snackbar.severity} sx={{ width: '100%', fontSize: '1rem' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </>
     );
 }
